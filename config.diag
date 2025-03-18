@@ -1,0 +1,10 @@
+export VARLIST="APCP ACPCP NCPCP TCOLW TCOLI TCOLS TCOLS TCOLC LCDC MCDC HCDC TCDC"
+export FHMAX=2976
+export INTV=6
+export DATADIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/archive
+export CDATELIST="2012050100 2012110100"
+export EXPLIST="c96n c96n_tte"
+export PRESLEV=NO
+export OUTPUTDIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/util/sfs_vrfy/data
+export WORKDIR=/lfs/h2/emc/ptmp/xiaqiong.zhou/tmp
+
