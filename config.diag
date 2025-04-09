@@ -7,4 +7,10 @@ export EXPLIST="c96n c96n_tte"
 export PRESLEV=NO
 export OUTPUTDIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/util/sfs_vrfy/data
 export WORKDIR=/lfs/h2/emc/ptmp/xiaqiong.zhou/tmp
+export GRADSDIR=/lfs/h2/emc/global/noscrub/xiaqiong.zhou/util/grads/grads-scripts
+export Nmonth=5
+export cmap_field=Ocean
+export cmap_diff=y2b
+export flipped_field="-flipped"
+export flipped_diff=""
 

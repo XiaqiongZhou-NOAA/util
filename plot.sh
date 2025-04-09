@@ -1,9 +1,7 @@
-source config
+source config.diag
+module load netcdf
 mkdir -p $WORKDIR
-export VARLIST="APCP ACPCP NCPCP TCOLW TCOLI TCOLS TCOLS TCOLC LCDC MCDC HCDC TCDC"
-EXPLIST="c96n c96n_tte"
 lenexp=${#EXPLIST[@]}
-export CDATELIST="2012050100 2012110100"
 echo $lenexp
 for CDATE in $CDATELIST; do
 	for VAR in $VARLIST; do
@@ -12,13 +10,19 @@ cat >plot_${VAR}_${CDATE}.gs <<EOF
 EXPLIST="$EXPLIST"
 CDATE=$CDATE
 VAR=$VAR
+Nmonth=$Nmonth
+cmap_field=$cmap_field
+cmap_diff=$cmap_diff
+flipped_field="$flipped_field"
+flipped_diff="$flipped_diff"
 t=1
 lenexp=$lenexp
-while(t<5)
+while(t<=Nmonth)
 iexp=1
 while (iexp<=2)
+exp.iexp=subwrd(EXPLIST,iexp)
 exp=subwrd(EXPLIST,iexp)
-'sdfopen  data/'VAR'/'exp'.'CDATE'.'VAR'.1p0.monthly.nc'
+'sdfopen  $OUTPUTDIR/'VAR'/'exp.iexp'.'CDATE'.'VAR'.1p0.monthly.nc'
 'set t 't
 'q time'
 say result
@@ -36,35 +40,69 @@ say varname
 'define fcst'iexp'='varname'.'iexp
 iexp=iexp+1
 endwhile
-
 say result
 'set grid off'
 'set grads off'
 'set lat -90 90'
 'set gxout shaded'
-*'/lfs/h2/emc/global/noscrub/xiaqiong.zhou/util/grads/gscript/color.gs -levs -4 -3 -2 -1 -0.5 -0.3 0.3 0.5 1 2 3 4  -kind blue2red1'
-'/lfs/h2/emc/global/noscrub/xiaqiong.zhou/util/grads/grads-scripts/subplot.gs 4  1'
-
+'$GRADSDIR/subplot.gs 4  1'
+'set xlopts 1 6 0.15'
+'set ylopts 1 6 0.15'
+'set stat on'
 'd fcst1'
-'/lfs/h2/emc/global/noscrub/xiaqiong.zhou/util/grads/grads-scripts/subplot.gs 4  2'
+say result
+range=sublin(result,9)
+cmin=subwrd(range,5)
+cmax=subwrd(range,6)
+cint=subwrd(range,7)
+
+'$GRADSDIR/colormaps.gs -map 'cmap_field'  'flipped' -levels 'cmin' 'cmax' 'cint
+'set grid off'
+'set xlopts 1 6 0.15'
+'set ylopts 1 6 0.15'
+'set grads off'
+'d fcst1'
+'$GRADSDIR/cbarm.gs'
+'draw title 'exp.1' 'VAR'  'mm' 'yyyy
+
+'$GRADSDIR/subplot.gs 4  2'
 'set grid off'
 'set grads off'
+'set xlopts 1 6 0.15'
+'set ylopts 1 6 0.15'
+'$GRADSDIR/colormaps.gs -map 'cmap_field'  'flipped' -levels 'cmin' 'cmax' 'cint
 'd fcst2'
-'/lfs/h2/emc/global/noscrub/xiaqiong.zhou/util/grads/grads-scripts/subplot.gs 4  3'
+'$GRADSDIR/cbarm.gs'
+'draw title 'exp.2' 'VAR'  'mm' 'yyyy
+'$GRADSDIR/subplot.gs 4  3'
 'set grid off'
 'set grads off'
+'set xlopts 1 6 0.15'
+'set ylopts 1 6 0.15'
 'd fcst1-fcst2'
-'/lfs/h2/emc/global/noscrub/xiaqiong.zhou/util/grads/gscript/xcbar.gs 3 8 0.8 1.0'
-'draw title 'exp' SST bias 'mm' 'yyyy
-'printim 'exp'.bias_sst_'mm'.png x1000 y1000  white'
+say result
+range=sublin(result,9)
+cmin=subwrd(range,5)
+cmax=subwrd(range,6)
+cint=subwrd(range,7)
+'$GRADSDIR/colormaps.gs -map 'cmap_diff'  'flipped' -levels 'cmin' 'cmax' 'cint
+'set grid off'
+'set grads off'
+'set xlopts 1 6 0.15'
+'set ylopts 1 6 0.15'
+'d fcst1-fcst2'
+'$GRADSDIR/cbarm.gs'
+'draw title 'exp.1'-'exp.2' 'VAR' DIFF 'mm' 'yyyy
+'printim 'exp'.diff_'VAR'_'mm''yyyy'.png x1000 y1000  white'
 'close 1'
 t=t+1
-pull dummy
-'c'
+*pull dummy
+*'c'
 reinit
 endwhile
+'quit'
 EOF
-#*grads job_$VAR_$EXP.sh
+grads -bpc "run  plot_${VAR}_${CDATE}.gs"
 done
 done
 
