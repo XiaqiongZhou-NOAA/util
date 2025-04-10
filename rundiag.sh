@@ -1,4 +1,5 @@
 source config.diag
+rm -f $WORKDIR
 mkdir -p $WORKDIR
 cd $WORKDIR
 MACHINE=$(echo "$machine" | tr  '[:lower:]' '[:upper:]')
@@ -59,8 +60,8 @@ mkdir -p \$WORKDIR
 cd \$WORKDIR
 for CDATE in \$CDATELIST ;do
 datadir=\$DATADIR/\$exp/\$CDATE/atmos/master/
-workdir=\$WORKDIR/tmp_\$CDATE_\$VAR
-rm -rf \$OUTPUTDIR/\$VAR/\$exp.\$CDATE.\${VAR}.grb2
+rm -rf \$OUTPUTDIR/\$VAR/\$exp.\$CDATE.\${VAR}.1p0.grb2
+rm -rf \$exp.\$CDATE.\${VAR}.grb2
           for ((ifhr=0; ifhr<=FHMAX; ifhr+=INTV)); do
 
             ((fhr=ifhr))
@@ -94,7 +95,7 @@ echo \$CDATE
 done
 EOF
  	if [ $MACHINE = WCOSS2 ]; then
-qsub job_${VAR}_${EXP}.sh
+qsub $WORKDIR/job_${VAR}_${EXP}.sh
 else
 sbatch job_${VAR}_${EXP}.sh
 fi

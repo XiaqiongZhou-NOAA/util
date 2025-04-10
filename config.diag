@@ -1,15 +1,14 @@
 export machine=hera
-export VARLIST="APCP ACPCP NCPCP TCOLW TCOLI TCOLS TCOLS TCOLC LCDC MCDC HCDC TCDC"
+export VARPRSLIST="UGRD HGT TMP VVEL O3MR RH SPFH"
+export VARLIST="APCP ACPCP NCPCP TCOLW TCOLI TCOLC TCOLS LCDC MCDC HCDC TCDC"
 export FHMAX=2976
 export INTV=6
 export CDATELIST="2012050100 2012110100"
-export EXPLIST="c96n_tte c96n_tte_c0s0"
+export EXPLIST="c96n c96n_tte"
 export PRESLEV=NO
-export Nmonth=5
-export cmap_field=Ocean
-export cmap_diff=y2b
-export flipped_field="-flipped"
-export flipped_diff=""
+export Nmonth=4
+export cmap_field=radar
+export cmap_diff=blue2red
 #WCOSS2
 export DATADIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/archive
 export OUTPUTDIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/util/sfs_vrfy/data
@@ -18,6 +17,6 @@ export GRADSDIR=/lfs/h2/emc/global/noscrub/xiaqiong.zhou/util/grads/grads-script
 #HERA
 export DATADIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/archive
 export OUTPUTDIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/noscrub/util/sfs_diag/data
-export WORKDIR=/scratch2/NCEPDEV/stmp1/Xiaqiong.Zhou
+export WORKDIR=/scratch2/NCEPDEV/stmp1/Xiaqiong.Zhou/sfs_diag
 export GRADSDIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/noscrub/util/grads/gscript
 

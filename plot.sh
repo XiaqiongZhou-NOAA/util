@@ -13,13 +13,12 @@ EXPLIST="$EXPLIST"
 CDATE=$CDATE
 VAR=$VAR
 Nmonth=$Nmonth
-cmap_field=$cmap_field
-cmap_diff=$cmap_diff
-flipped_field="$flipped_field"
-flipped_diff="$flipped_diff"
+cmap_field="$cmap_field"
+cmap_diff="$cmap_diff"
 t=1
 lenexp=$lenexp
 while(t<=Nmonth)
+tt=t-1
 iexp=1
 while (iexp<=2)
 exp.iexp=subwrd(EXPLIST,iexp)
@@ -43,11 +42,10 @@ say varname
 iexp=iexp+1
 endwhile
 say result
+'$GRADSDIR/subplot.gs 4  1'
+'set gxout shaded'
 'set grid off'
 'set grads off'
-'set lat -90 90'
-'set gxout shaded'
-'$GRADSDIR/subplot.gs 4  1'
 'set xlopts 1 6 0.15'
 'set ylopts 1 6 0.15'
 'set stat on'
@@ -57,45 +55,64 @@ range=sublin(result,9)
 cmin=subwrd(range,5)
 cmax=subwrd(range,6)
 cint=subwrd(range,7)
+cint=cint/2
 
-'$GRADSDIR/colormaps.gs -map 'cmap_field'  'flipped' -levels 'cmin' 'cmax' 'cint
+'set stat off'
+*'$GRADSDIR/colormaps.gs -map 'cmap_field'  'flipped_field' -levels 'cmin' 'cmax' 'cint
+'$GRADSDIR/color.gs -kind 'cmap_field' 'cmin' 'cmax' 'cint
 'set grid off'
+'set grads off'
 'set xlopts 1 6 0.15'
 'set ylopts 1 6 0.15'
-'set grads off'
 'd fcst1'
-'$GRADSDIR/cbarm.gs'
-'draw title 'exp.1' 'VAR'  'mm' 'yyyy
+'d aave(fcst1,g)'
+say result
+ress=subwrd(result,4)
+res=substr(ress,1,10)
+*'$GRADSDIR/cbarm.gs'
+'draw title 'exp.1' 'VAR' mean='res' \ 'mm' 'yyyy
 
 '$GRADSDIR/subplot.gs 4  2'
 'set grid off'
 'set grads off'
 'set xlopts 1 6 0.15'
 'set ylopts 1 6 0.15'
-'$GRADSDIR/colormaps.gs -map 'cmap_field'  'flipped' -levels 'cmin' 'cmax' 'cint
+'$GRADSDIR/color.gs -kind 'cmap_field' 'cmin' 'cmax' 'cint
 'd fcst2'
+'d aave(fcst2,g)'
+say result
+ress=subwrd(result,4)
+res=substr(ress,1,10)
 '$GRADSDIR/cbarm.gs'
-'draw title 'exp.2' 'VAR'  'mm' 'yyyy
+'draw title 'exp.2' 'VAR' mean='res'\ 'mm' 'yyyy
 '$GRADSDIR/subplot.gs 4  3'
 'set grid off'
 'set grads off'
 'set xlopts 1 6 0.15'
 'set ylopts 1 6 0.15'
-'d fcst1-fcst2'
+'set stat on'
+'d fcst2-fcst1'
 say result
 range=sublin(result,9)
 cmin=subwrd(range,5)
 cmax=subwrd(range,6)
 cint=subwrd(range,7)
-'$GRADSDIR/colormaps.gs -map 'cmap_diff'  'flipped' -levels 'cmin' 'cmax' 'cint
+cint=cint/2
+'set stat off'
+'$GRADSDIR/color.gs -kind 'cmap_diff' 'cmin' 'cmax' 'cint
 'set grid off'
 'set grads off'
 'set xlopts 1 6 0.15'
 'set ylopts 1 6 0.15'
-'d fcst1-fcst2'
+'d fcst2-fcst1'
+'d aave(fcst2-fcst1,g)'
+say result
+ress=subwrd(result,4)
+res=substr(ress,1,10)
+
 '$GRADSDIR/cbarm.gs'
-'draw title 'exp.1'-'exp.2' 'VAR' DIFF 'mm' 'yyyy
-'printim 'exp'.diff_'VAR'_'mm''yyyy'.png x1000 y1000  white'
+'draw title 'exp.2'-'exp.1' 'VAR' DIFF mean='res' \ 'mm' 'yyyy
+'printim 'exp'.diff_'VAR'_'CDATE'_leadmonth'tt'.png x1000 y1000  white'
 'close 1'
 t=t+1
 *pull dummy
@@ -104,7 +121,7 @@ reinit
 endwhile
 'quit'
 EOF
-grads -bpc "run  plot_${VAR}_${CDATE}.gs"
+grads -blc "run  plot_${VAR}_${CDATE}.gs"
 done
 done
 
