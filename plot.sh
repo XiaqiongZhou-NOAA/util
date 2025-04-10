@@ -1,8 +1,10 @@
 source config.diag
 module load netcdf
-mkdir -p $WORKDIR
+mkdir -p tmp
+cd tmp
 lenexp=${#EXPLIST[@]}
 echo $lenexp
+
 for CDATE in $CDATELIST; do
 	for VAR in $VARLIST; do
 echo $VAR ' ' plot_${VAR}_${CDATE}.gs

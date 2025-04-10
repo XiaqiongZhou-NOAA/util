@@ -1,16 +1,23 @@
+export machine=hera
 export VARLIST="APCP ACPCP NCPCP TCOLW TCOLI TCOLS TCOLS TCOLC LCDC MCDC HCDC TCDC"
 export FHMAX=2976
 export INTV=6
-export DATADIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/archive
 export CDATELIST="2012050100 2012110100"
-export EXPLIST="c96n c96n_tte"
+export EXPLIST="c96n_tte c96n_tte_c0s0"
 export PRESLEV=NO
-export OUTPUTDIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/util/sfs_vrfy/data
-export WORKDIR=/lfs/h2/emc/ptmp/xiaqiong.zhou/tmp
-export GRADSDIR=/lfs/h2/emc/global/noscrub/xiaqiong.zhou/util/grads/grads-scripts
 export Nmonth=5
 export cmap_field=Ocean
 export cmap_diff=y2b
 export flipped_field="-flipped"
 export flipped_diff=""
+#WCOSS2
+export DATADIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/archive
+export OUTPUTDIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/util/sfs_vrfy/data
+export WORKDIR=/lfs/h2/emc/ptmp/xiaqiong.zhou/tmp
+export GRADSDIR=/lfs/h2/emc/global/noscrub/xiaqiong.zhou/util/grads/grads-scripts
+#HERA
+export DATADIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/archive
+export OUTPUTDIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/noscrub/util/sfs_diag/data
+export WORKDIR=/scratch2/NCEPDEV/stmp1/Xiaqiong.Zhou
+export GRADSDIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/noscrub/util/grads/gscript
 

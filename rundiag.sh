@@ -1,8 +1,13 @@
-source config
+source config.diag
 mkdir -p $WORKDIR
+cd $WORKDIR
+MACHINE=$(echo "$machine" | tr  '[:lower:]' '[:upper:]')
+
 for EXP in $EXPLIST;do
 	for VAR in $VARLIST;do
-cat >job_$VAR_$EXP.sh <<EOF
+ 	if [ $MACHINE = WCOSS2 ]; then
+
+cat >job_${VAR}_${EXP}.sh <<EOF
 #!/bin/bash
 #PBS -j oe
 #PBS -o ./out.$VAR.$EXP
@@ -13,7 +18,26 @@ cat >job_$VAR_$EXP.sh <<EOF
 #PBS -A GFS-DEV
 #PBS -l select=1:ncpus=1
 module load intel-classic/2022.2.0.262 intel-oneapi/2022.2.0.262 intel/19.1.3.304
-module load wgrib2/2.0.8
+EOF
+ 	elif [ "$MACHINE" = "HERA" ]; then
+cat >job_${VAR}_${EXP}.sh <<EOF
+#!/bin/bash
+#-----------------------------------------------------------
+# Invoke as: sbatch $script
+#-----------------------------------------------------------
+#SBATCH --ntasks=1 --nodes=1
+#SBATCH -t 6:30:00
+#SBATCH -A fv3-cpu
+#SBATCH -q batch
+#SBATCH --partition=service
+#SBATCH -J fv3
+#SBATCH -o ./log.$VAR.$EXP
+#SBATCH -e ./log.$VAR.$EXP
+EOF
+fi
+cat <<EOF >> job_${VAR}_${EXP}.sh
+
+module load wgrib2
 module load cdo
 
 export VAR=$VAR
@@ -69,7 +93,11 @@ rm -rf \$OUTPUTDIR/\$VAR/\$exp.\$CDATE.\${VAR}.grb2
 echo \$CDATE
 done
 EOF
-qsub job_$VAR_$EXP.sh
+ 	if [ $MACHINE = WCOSS2 ]; then
+qsub job_${VAR}_${EXP}.sh
+else
+sbatch job_${VAR}_${EXP}.sh
+fi
 done
 done
 
