@@ -10,16 +10,16 @@ export Nmonth=4
 export cmap_field=radar
 export cmap_diff=blue2red
 #WCOSS2
-export DATADIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/archive
-export OUTPUTDIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/util/sfs_vrfy/data
-export WORKDIR=/lfs/h2/emc/ptmp/xiaqiong.zhou/tmp
+export DATADIR=/lfs/h2/emc/physics/noscrub/$USER/archive
+export OUTPUTDIR=/lfs/h2/emc/physics/noscrub/$USER/util/sfs_vrfy/data
+export WORKDIR=/lfs/h2/emc/ptmp/$USER/tmp
 export GRADSDIR=/lfs/h2/emc/global/noscrub/xiaqiong.zhou/util/grads/grads-scripts
 export ERADIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/data/ERA5-mon
 
 #HERA
-export DATADIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/archive
-export OUTPUTDIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/noscrub/util/sfs_diag/data
-export WORKDIR=/scratch2/NCEPDEV/stmp1/Xiaqiong.Zhou/sfs_diag
+export DATADIR=/scratch2/NCEPDEV/ensemble/$USER/archive
+export OUTPUTDIR=/scratch2/NCEPDEV/ensemble/$USER/noscrub/util/sfs_diag/data
+export WORKDIR=/scratch2/NCEPDEV/stmp1/$USER/sfs_diag
 export GRADSDIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/noscrub/util/grads/gscript
 export ERADIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/noscrub/data/ERA5-mon/ERA5-mon
 
