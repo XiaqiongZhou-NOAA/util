@@ -1,6 +1,6 @@
 export machine=hera
-export VARPRSLIST="UGRD HGT TMP VVEL O3MR RH SPFH"
-export VARLIST="APCP ACPCP NCPCP TCOLW TCOLI TCOLC TCOLS LCDC MCDC HCDC TCDC"
+VARLIST=("APCP" "ACPCP" "NCPCP" "TCOLW" "TCOLI" "TCOLC" "TCOLS" "LCDC" "MCDC" "HCDC" "TCDC")
+VARLIST_ERA=("var228*1000/4" "none" "none" "tclw" "tcli" "none" "none" "lcc*100" "mcc*100" "hcc*100" "tcc*100")
 export FHMAX=2976
 export INTV=6
 export CDATELIST="2012050100 2012110100"
@@ -19,4 +19,5 @@ export DATADIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/archive
 export OUTPUTDIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/noscrub/util/sfs_diag/data
 export WORKDIR=/scratch2/NCEPDEV/stmp1/Xiaqiong.Zhou/sfs_diag
 export GRADSDIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/noscrub/util/grads/gscript
+export ERADIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/noscrub/data/ERA5-mon/ERA5-mon
 

@@ -6,12 +6,18 @@ lenexp=${#EXPLIST[@]}
 echo $lenexp
 
 for CDATE in $CDATELIST; do
-	for VAR in $VARLIST; do
+  for i in "${!VARLIST[@]}"; do
+    VAR=${VARLIST[$i]}
+    VARANA=${VARLIST_ERA[$i]}
+    echo "Model variable: $VAR"
+    echo "ERA variable:   $VARANA"
 echo $VAR ' ' plot_${VAR}_${CDATE}.gs
 cat >plot_${VAR}_${CDATE}.gs <<EOF
 EXPLIST="$EXPLIST"
 CDATE=$CDATE
 VAR=$VAR
+VARA='$VARANA'
+VARA_name="$VARANA"
 Nmonth=$Nmonth
 cmap_field="$cmap_field"
 cmap_diff="$cmap_diff"
@@ -41,6 +47,12 @@ say varname
 'define fcst'iexp'='varname'.'iexp
 iexp=iexp+1
 endwhile
+if ( VARA !='none')
+'sdfopen $ERADIR/ERA5.1994-2020.monthly.2dvars.1p0.nc'
+'set dfile 'iexp
+'set time 00Z01'mm''yyyy
+'define ana='VARA_name
+endif
 say result
 '$GRADSDIR/subplot.gs 4  1'
 'set gxout shaded'
@@ -85,7 +97,22 @@ ress=subwrd(result,4)
 res=substr(ress,1,10)
 '$GRADSDIR/cbarm.gs'
 'draw title 'exp.2' 'VAR' mean='res'\ 'mm' 'yyyy
+
 '$GRADSDIR/subplot.gs 4  3'
+'set grid off'
+'set grads off'
+'set xlopts 1 6 0.15'
+'set ylopts 1 6 0.15'
+'$GRADSDIR/color.gs -kind 'cmap_field' 'cmin' 'cmax' 'cint
+'d ana'
+'d aave(fcst2,g)'
+say result
+ress=subwrd(result,4)
+res=substr(ress,1,10)
+'$GRADSDIR/cbarm.gs'
+'draw title ANA 'VARA' mean='res'\ 'mm' 'yyyy
+
+'$GRADSDIR/subplot.gs 4  4'
 'set grid off'
 'set grads off'
 'set xlopts 1 6 0.15'

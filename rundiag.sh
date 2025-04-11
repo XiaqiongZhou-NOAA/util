@@ -5,7 +5,9 @@ cd $WORKDIR
 MACHINE=$(echo "$machine" | tr  '[:lower:]' '[:upper:]')
 
 for EXP in $EXPLIST;do
-	for VAR in $VARLIST;do
+  for i in "${!VARLIST[@]}"; do
+    VAR=${VARLIST[$i]}
+
  	if [ $MACHINE = WCOSS2 ]; then
 
 cat >job_${VAR}_${EXP}.sh <<EOF
