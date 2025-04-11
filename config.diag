@@ -14,6 +14,8 @@ export DATADIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/archive
 export OUTPUTDIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/util/sfs_vrfy/data
 export WORKDIR=/lfs/h2/emc/ptmp/xiaqiong.zhou/tmp
 export GRADSDIR=/lfs/h2/emc/global/noscrub/xiaqiong.zhou/util/grads/grads-scripts
+export ERADIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/data/ERA5-mon
+
 #HERA
 export DATADIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/archive
 export OUTPUTDIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/noscrub/util/sfs_diag/data
