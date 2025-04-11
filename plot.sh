@@ -125,6 +125,11 @@ cmin=subwrd(range,5)
 cmax=subwrd(range,6)
 cint=subwrd(range,7)
 cint=cint/2
+if (math_abs(cmin)>math_abs(cmax))
+cmax=math_abs(cmin)
+else
+cmin=-1*cmax
+endif
 'set stat off'
 '$GRADSDIR/color.gs -kind 'cmap_diff' 'cmin' 'cmax' 'cint
 'set grid off'
