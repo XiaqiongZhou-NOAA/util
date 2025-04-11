@@ -7,6 +7,7 @@ MACHINE=$(echo "$machine" | tr  '[:lower:]' '[:upper:]')
 for EXP in $EXPLIST;do
   for i in "${!VARLIST[@]}"; do
     VAR=${VARLIST[$i]}
+    VAR=$(echo "$VAR" | tr  '[:lower:]' '[:upper:]')
 
  	if [ $MACHINE = WCOSS2 ]; then
 
@@ -53,10 +54,47 @@ export PRESLEV=$PRESLEV
 export OUTPUTDIR=$OUTPUTDIR
 export WORKDIR=$WORKDIR
 mkdir -p \$OUTPUTDIR/\$VAR
+
 var=\$VAR
-if [ \$VAR == "UGRD" -o  \$VAR == "VGRD" ];then
-	var="(UGRD|VGRD)"
-fi
+case "$VAR" in
+    UGRD|VGRD)
+        var="(UGRD|VGRD)"
+        ;;
+    T2M)
+        var="TMP:2 m above ground"
+        ;;
+    TMAX2M)
+        var="TMAX:2 m above ground"
+        ;;
+    TMIN2M)
+        var="TMIN:2 m above ground"
+        ;;
+    T850)
+        var="TMP:850 mb"
+        ;;
+    T200)
+        var="TMP:200 mb"
+        ;;
+    U200)
+	var="(UGRD:200 mb|VGRD:200 mb)"
+        ;;
+    U850)
+	var="(UGRD:850 mb|VGRD:850 mb)"
+        ;;
+    U10M)
+	var="(UGRD:10 m above ground|VGRD:10 m above ground)"
+        ;;
+    V10M)
+	var="(UGRD:10 m above ground|VGRD:10 m above ground)"
+        ;;
+    WIND10M)
+        var="WIND:10 m above ground"
+        ;;
+    *)
+        echo " variable: $VAR"
+        ;;
+esac
+
 
 mkdir -p \$WORKDIR
 cd \$WORKDIR

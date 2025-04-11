@@ -9,6 +9,8 @@ for CDATE in $CDATELIST; do
   for i in "${!VARLIST[@]}"; do
     VAR=${VARLIST[$i]}
     VARANA=${VARLIST_ERA[$i]}
+    VAR=$(echo "$VAR" | tr  '[:lower:]' '[:upper:]')
+
     echo "Model variable: $VAR"
     echo "ERA variable:   $VARANA"
 echo $VAR ' ' plot_${VAR}_${CDATE}.gs

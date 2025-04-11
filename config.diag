@@ -1,10 +1,12 @@
 export machine=hera
-VARLIST=("APCP" "ACPCP" "NCPCP" "TCOLW" "TCOLI" "TCOLC" "TCOLS" "LCDC" "MCDC" "HCDC" "TCDC")
-VARLIST_ERA=("var228*1000/4" "none" "none" "tclw" "tcli" "none" "none" "lcc*100" "mcc*100" "hcc*100" "tcc*100")
+#VARLIST=("APCP" "ACPCP" "NCPCP" "TCOLW" "TCOLI" "TCOLC" "TCOLS" "LCDC" "MCDC" "HCDC" "TCDC")
+#VARLIST_ERA=("var228*1000/4" "none" "none" "tclw" "tcli" "none" "none" "lcc*100" "mcc*100" "hcc*100" "tcc*100")
+VARLIST=("T2m" "u10m" "PWAT" "CAPE" "CWAT" "TMAX2m" "WIND10m" "TMIN2m" "T850" "T200" "U850" "U200")
+VARLIST_ERA=("none" "none" "none" "none" "none" "none" "none" "none" "none" "none" "none" "none"   )
 export FHMAX=2976
 export INTV=6
 export CDATELIST="2012050100 2012110100"
-export EXPLIST="c96n_tte c96n_tte_c0s0"
+export EXPLIST="c96n c96n_tte"
 export PRESLEV=NO
 export Nmonth=4
 export cmap_field=radar
