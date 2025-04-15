@@ -42,7 +42,11 @@ say mm
 say yyyy
 'q file'
 say result
+if ( VAR !='V10M' & VAR != 'V200' )
 res=sublin(result,7)
+else
+res=sublin(result,8)
+endif
 say res
 varname=subwrd(res,1)
 say varname
@@ -50,7 +54,7 @@ say varname
 iexp=iexp+1
 endwhile
 if ( VARA !='none')
-'sdfopen $ERADIR/ERA5.1994-2020.monthly.2dvars.1p0.nc'
+'sdfopen $ERADIR/$ERAFILENAME'
 'set dfile 'iexp
 'set time 00Z01'mm''yyyy
 'define ana='VARA_name
@@ -83,7 +87,7 @@ cint=cint/2
 say result
 ress=subwrd(result,4)
 res=substr(ress,1,10)
-*'$GRADSDIR/cbarm.gs'
+*'$GRADSDIR/cbarm.gs 1 0 1'
 'draw title 'exp.1' 'VAR' mean='res' \ 'mm' 'yyyy
 
 '$GRADSDIR/subplot.gs 4  2'
@@ -97,7 +101,7 @@ res=substr(ress,1,10)
 say result
 ress=subwrd(result,4)
 res=substr(ress,1,10)
-'$GRADSDIR/cbarm.gs'
+'$GRADSDIR/cbarm.gs 1 0 1'
 'draw title 'exp.2' 'VAR' mean='res'\ 'mm' 'yyyy
 
 '$GRADSDIR/subplot.gs 4  3'
@@ -111,7 +115,7 @@ res=substr(ress,1,10)
 say result
 ress=subwrd(result,4)
 res=substr(ress,1,10)
-'$GRADSDIR/cbarm.gs'
+'$GRADSDIR/cbarm.gs 1 0 1'
 'draw title ANA 'VARA' mean='res'\ 'mm' 'yyyy
 
 '$GRADSDIR/subplot.gs 4  4'
@@ -144,7 +148,7 @@ say result
 ress=subwrd(result,4)
 res=substr(ress,1,10)
 
-'$GRADSDIR/cbarm.gs'
+'$GRADSDIR/cbarm.gs 1 0 1'
 'draw title 'exp.2'-'exp.1' 'VAR' DIFF mean='res' \ 'mm' 'yyyy
 'printim 'exp'.diff_'VAR'_'CDATE'_leadmonth'tt'.png x1000 y1000  white'
 'close 1'

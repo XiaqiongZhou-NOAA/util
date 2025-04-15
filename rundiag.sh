@@ -1,5 +1,5 @@
 source config.diag
-rm -f $WORKDIR
+rm -rf $WORKDIR
 mkdir -p $WORKDIR
 cd $WORKDIR
 MACHINE=$(echo "$machine" | tr  '[:lower:]' '[:upper:]')
@@ -74,6 +74,12 @@ case "$VAR" in
         ;;
     T200)
         var="TMP:200 mb"
+        ;;
+    RH200)
+        var="RH:200 mb"
+        ;;
+    RH850)
+        var="RH:850 mb"
         ;;
     U200)
 	var="(UGRD:200 mb|VGRD:200 mb)"
