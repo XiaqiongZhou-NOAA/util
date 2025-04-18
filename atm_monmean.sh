@@ -63,6 +63,9 @@ case "$VAR" in
     T2M)
         var="TMP:2 m above ground"
         ;;
+    TS)
+        var=":TMP:surface:"
+        ;;
     TMAX2M)
         var="TMAX:2 m above ground"
         ;;
@@ -95,6 +98,21 @@ case "$VAR" in
         ;;
     WIND10M)
         var="WIND:10 m above ground"
+        ;;
+    DSWRFSFC)
+        var=":DSWRF:surface:"
+        ;;
+    DLWRFSFC)
+        var=":DLWRF:surface:"
+        ;;
+    USWRFSFC)
+        var=":USWRF:surface:"
+        ;;
+    USWRFTOA)
+        var=":USWRF:top of atmosphere:"
+        ;;
+    ULWRFTOA)
+        var=":ULWRF:top of atmosphere:"
         ;;
     *)
         echo " variable: $VAR"

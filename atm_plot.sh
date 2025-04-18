@@ -3,6 +3,7 @@ module load netcdf
 mkdir -p tmp
 cd tmp
 lenexp=${#EXPLIST[@]}
+(( nplots = lenexp + 2 ))
 echo $lenexp
 
 for CDATE in $CDATELIST; do
@@ -25,6 +26,7 @@ cmap_field="$cmap_field"
 cmap_diff="$cmap_diff"
 t=1
 lenexp=$lenexp
+nplots=$nplots
 while(t<=Nmonth)
 tt=t-1
 iexp=1
@@ -60,7 +62,7 @@ if ( VARA !='none')
 'define ana='VARA_name
 endif
 say result
-'$GRADSDIR/subplot.gs 4  1'
+'$GRADSDIR/subplot.gs 'nplots'  1'
 'set gxout shaded'
 'set grid off'
 'set grads off'
@@ -87,10 +89,10 @@ cint=cint/2
 say result
 ress=subwrd(result,4)
 res=substr(ress,1,10)
-*'$GRADSDIR/cbarm.gs 1 0 1'
-'draw title 'exp.1' 'VAR' mean='res' \ 'mm' 'yyyy
+'$GRADSDIR/cbarm.gs 1 0 1'
+'draw title 'exp.1' 'VAR'\ mean='res' 'mm' 'yyyy
 
-'$GRADSDIR/subplot.gs 4  2'
+'$GRADSDIR/subplot.gs 'nplots'  2'
 'set grid off'
 'set grads off'
 'set xlopts 1 6 0.15'
@@ -102,23 +104,23 @@ say result
 ress=subwrd(result,4)
 res=substr(ress,1,10)
 '$GRADSDIR/cbarm.gs 1 0 1'
-'draw title 'exp.2' 'VAR' mean='res'\ 'mm' 'yyyy
+'draw title 'exp.2' 'VAR'\ mean='res' 'mm' 'yyyy
 
-'$GRADSDIR/subplot.gs 4  3'
+'$GRADSDIR/subplot.gs 'nplots'  3'
 'set grid off'
 'set grads off'
 'set xlopts 1 6 0.15'
 'set ylopts 1 6 0.15'
 '$GRADSDIR/color.gs -kind 'cmap_field' 'cmin' 'cmax' 'cint
 'd ana'
-'d aave(fcst2,g)'
+'d aave(ana,g)'
 say result
 ress=subwrd(result,4)
 res=substr(ress,1,10)
 '$GRADSDIR/cbarm.gs 1 0 1'
-'draw title ANA 'VARA' mean='res'\ 'mm' 'yyyy
+'draw title ANA 'VARA'\mean='res' 'mm' 'yyyy
 
-'$GRADSDIR/subplot.gs 4  4'
+'$GRADSDIR/subplot.gs 'nplots'  4'
 'set grid off'
 'set grads off'
 'set xlopts 1 6 0.15'
@@ -149,7 +151,10 @@ ress=subwrd(result,4)
 res=substr(ress,1,10)
 
 '$GRADSDIR/cbarm.gs 1 0 1'
-'draw title 'exp.2'-'exp.1' 'VAR' DIFF mean='res' \ 'mm' 'yyyy
+'draw title 'exp.2'-'exp.1' 'VAR' DIFF\mean='res' 'mm' 'yyyy
+
+
+
 'printim 'exp'.diff_'VAR'_'CDATE'_leadmonth'tt'.png x1000 y1000  white'
 'close 1'
 t=t+1
