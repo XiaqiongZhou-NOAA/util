@@ -12,10 +12,10 @@ for CDATE in $CDATELIST; do
     VARANA=${VARLIST_CERES[$i]}
     VAR=$(echo "$VAR" | tr  '[:lower:]' '[:upper:]')
     if [ "$VAR" = "SST" ]; then
-	   anafile=$OISSTDIR/$OISSTFILENAME
+	   anafile=$ANADATADIR/$OISSTFILENAME
            VARANA=sst
     else 
-	    anafile=$CERESDIR/$CERESFILENAME
+	    anafile=$ANADATADIR/$CERESFILENAME
 
     fi	    
 
@@ -40,7 +40,7 @@ iexp=1
 while (iexp<=2)
 exp.iexp=subwrd(EXPLIST,iexp)
 exp=subwrd(EXPLIST,iexp)
-'sdfopen  $OUTPUTDIR/'VAR'/'exp.iexp'.'CDATE'.'VAR'.1p0.monthly.nc'
+'sdfopen  $DATAOUT/'VAR'/'exp.iexp'.'CDATE'.'VAR'.1p0.monthly.nc'
 'set t 't
 'q time'
 say result
@@ -171,7 +171,7 @@ res=substr(ress,1,10)
 
 
 
-'printim 'exp'.diff_'VAR'_'CDATE'_leadmonth'tt'.png x1000 y1000  white'
+'printim 'exp'.bias_'VAR'_'CDATE'_leadmonth'tt'.png x1000 y1000  white'
 'close 1'
 t=t+1
 *pull dummy

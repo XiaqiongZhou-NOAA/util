@@ -33,7 +33,7 @@ iexp=1
 while (iexp<=2)
 exp.iexp=subwrd(EXPLIST,iexp)
 exp=subwrd(EXPLIST,iexp)
-'sdfopen  $OUTPUTDIR/'VAR'/'exp.iexp'.'CDATE'.'VAR'.1p0.monthly.nc'
+'sdfopen  $DATAOUT/'VAR'/'exp.iexp'.'CDATE'.'VAR'.1p0.monthly.nc'
 'set t 't
 'q time'
 say result

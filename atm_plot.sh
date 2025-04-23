@@ -2,6 +2,7 @@ source config.diag
 module load netcdf
 mkdir -p tmp
 cd tmp
+cp -pr ../grads-scripts  .
 lenexp=${#EXPLIST[@]}
 (( nplots = lenexp + 2 ))
 echo $lenexp
@@ -33,7 +34,7 @@ iexp=1
 while (iexp<=2)
 exp.iexp=subwrd(EXPLIST,iexp)
 exp=subwrd(EXPLIST,iexp)
-'sdfopen  $OUTPUTDIR/'VAR'/'exp.iexp'.'CDATE'.'VAR'.1p0.monthly.nc'
+'sdfopen  $DATAOUT/'VAR'/'exp.iexp'.'CDATE'.'VAR'.1p0.monthly.nc'
 'set t 't
 'q time'
 say result
@@ -56,7 +57,7 @@ say varname
 iexp=iexp+1
 endwhile
 if ( VARA !='none')
-'sdfopen $ERADIR/$ERAFILENAME'
+'sdfopen $ANADATADIR/$ERAFILENAME'
 'set dfile 'iexp
 'set time 00Z01'mm''yyyy
 'define ana='VARA_name

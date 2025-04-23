@@ -46,14 +46,14 @@ module load cdo
 
 export VAR=$VAR
 export exp=$EXP
-export DATADIR=$DATADIR
+export DATAIN=$DATAIN
 export FHMAX=$FHMAX
 export INTV=$INTV
 export CDATELIST="$CDATELIST"
 export PRESLEV=$PRESLEV
-export OUTPUTDIR=$OUTPUTDIR
+export DATAOUT=$DATAOUT
 export WORKDIR=$WORKDIR
-mkdir -p \$OUTPUTDIR/\$VAR
+mkdir -p \$DATAOUT/\$VAR
 
 var=\$VAR
 case "$VAR" in
@@ -123,8 +123,8 @@ esac
 mkdir -p \$WORKDIR
 cd \$WORKDIR
 for CDATE in \$CDATELIST ;do
-datadir=\$DATADIR/\$exp/\$CDATE/atmos/master/
-rm -rf \$OUTPUTDIR/\$VAR/\$exp.\$CDATE.\${VAR}.1p0.grb2
+datadir=\$DATAIN/\$exp/\$CDATE/atmos/master/
+rm -rf \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.1p0.grb2
 rm -rf \$exp.\$CDATE.\${VAR}.grb2
           for ((ifhr=0; ifhr<=FHMAX; ifhr+=INTV)); do
 
@@ -144,16 +144,16 @@ rm -rf \$exp.\$CDATE.\${VAR}.grb2
 	     fi
       done
 
-      wgrib2 \${exp}.\$CDATE.\${VAR}.grb2 -new_grid latlon 0:360:1.0 -90:181:1.0 \$OUTPUTDIR/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2
+      wgrib2 \${exp}.\$CDATE.\${VAR}.grb2 -new_grid latlon 0:360:1.0 -90:181:1.0 \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2
           LEVELS=\$(wgrib2  \$exp.\$CDATE.\${VAR}.grb2.tmp1  -v | sort -u | wc -l)
           if [ \$VAR == "UGRD" -o  \$VAR == "VGRD" ];then
 	      ((LEVELS=LEVELS/2))
           fi
           echo "Total vertical levels: \$LEVELS"
 
-          wgrib2 \$OUTPUTDIR/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2 -nc_nlev \$LEVELS -netcdf \${exp}.\$CDATE.\${VAR}.1p0.nc
+          wgrib2 \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2 -nc_nlev \$LEVELS -netcdf \${exp}.\$CDATE.\${VAR}.1p0.nc
 
-      cdo monmean \${exp}.\$CDATE.\${VAR}.1p0.nc \$OUTPUTDIR/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.monthly.nc
+      cdo monmean \${exp}.\$CDATE.\${VAR}.1p0.nc \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.monthly.nc
       
 echo \$CDATE
 done

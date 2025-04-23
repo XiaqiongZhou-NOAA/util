@@ -47,21 +47,21 @@ module load cdo
 
 export VAR=$VAR
 export exp=$EXP
-export DATADIR=$DATADIR
+export DATAIN=$DATAIN
 export FHMAX=$FHMAX
 export INTV=$INTV
 export CDATELIST="$CDATELIST"
 export PRESLEV=$PRESLEV
-export OUTPUTDIR=$OUTPUTDIR
+export DATAOUT=$DATAOUT
 export WORKDIR=$WORKDIR
-mkdir -p \$OUTPUTDIR/\$VAR
+mkdir -p \$DATAOUT/\$VAR
 
 var=\$VAR
 
 mkdir -p \$WORKDIR
 cd \$WORKDIR
 for CDATE in \$CDATELIST ;do
-datadir=\$DATADIR/\$exp/\$CDATE/ocean/history/
+datadir=\$DATAIN/\$exp/\$CDATE/ocean/history/
 mkdir tmp_\$exp.\$CDATE.\${var}
           for ((ifhr=0; ifhr<=FHMAX; ifhr+=INTV)); do
 
@@ -72,11 +72,11 @@ mkdir tmp_\$exp.\$CDATE.\${var}
 	     filename=sfs.ocean.t00z.${INTV}hr_avg.f\${fhr}.nc
              cdo select,name=\$var \$datadir/\$filename tmp_\$exp.\$CDATE.\${var}/\$exp.\$CDATE.\${var}.f\${fhr}.nc
          done
-          mkdir -p \$OUTPUTDIR/\$var
+          mkdir -p \$DATAOUT/\$var
           
           cdo mergetime tmp_\$exp.\$CDATE.\$var/\$exp.\$CDATE.\$var.f*.nc \$exp.\$CDATE.\${var}.nc
-          cdo monmean  \$exp.\$CDATE.\${var}.nc  \$OUTPUTDIR/\$var/\$exp.\$CDATE.\${var}.monthly.nc
-          cdo remapbil,r360x181 \$OUTPUTDIR/\$var/\$exp.\$CDATE.\${var}.monthly.nc  \$OUTPUTDIR\/\$var/\$exp.\$CDATE.\${var}.1p0.monthly.nc
+          cdo monmean  \$exp.\$CDATE.\${var}.nc  \$DATAOUT/\$var/\$exp.\$CDATE.\${var}.monthly.nc
+          cdo remapbil,r360x181 \$DATAOUT/\$var/\$exp.\$CDATE.\${var}.monthly.nc  \$DATAOUT\/\$var/\$exp.\$CDATE.\${var}.1p0.monthly.nc
 
       
 echo \$CDATE
