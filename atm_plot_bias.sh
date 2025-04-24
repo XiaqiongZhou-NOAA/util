@@ -56,7 +56,7 @@ say varname
 iexp=iexp+1
 endwhile
 if ( VARA !='none')
-'sdfopen $ERADIR/$ERAFILENAME'
+'sdfopen $ANADATADIR/$ERAFILENAME'
 'set dfile 'iexp
 'set time 00Z01'mm''yyyy
 'define ana='VARA_name
