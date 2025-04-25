@@ -1,6 +1,7 @@
 source config.diag
 module load netcdf
 mkdir -p tmp
+cp -pr grads-scripts tmp/.
 cd tmp
 lenexp=${#EXPLIST[@]}
 (( nplots = lenexp + 2 ))
