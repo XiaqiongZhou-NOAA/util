@@ -1,7 +1,7 @@
 export machine=hera
 ###ATMO variables
 #VARLIST=("TS" "DSWRFSFC" "ULWRFTOA" "APCP" "ACPCP" "NCPCP" "TCOLW" "TCOLI" "TCOLC" "TCOLS" "LCDC" "MCDC" "HCDC" "TCDC" "T2m" "u10m" "v10m" "PWAT" "CAPE" "CWAT" "TMAX2m" "WIND10m" "TMIN2m")
-#VARLIST_ERA=("sst" "ssr/86400" "ttr/-86400" "var228*1000/4" "none" "none" "tclw" "tciw" "none" "none" "lcc*100" "mcc*100" "hcc*100" "tcc*100" "t2m" "u10" "v10" "none" "none" "none" "none" "si10" "none")
+#VARLIST_ERA=("sst" "ssrd/86400" "ttr/-86400" "var228*1000/4" "none" "none" "tclw" "tciw" "none" "none" "lcc*100" "mcc*100" "hcc*100" "tcc*100" "t2m" "u10" "v10" "none" "none" "none" "none" "si10" "none")
 VARLIST=("MCDC")
 VARLIST_ERA=("mcc*100")
 export PRESLEV=NO
