@@ -73,20 +73,22 @@ sort_by_pressure_mb() {
     wgrib2 "\$input_file" -s > "\$tmp_inv"
 
     echo "Extracting pressure and sorting..."
-   awk -F: '
-      {
-    # Match pressure level in the 5th field (like "200 mb", "850 mb")
-    match(\$5, /([0-9]+)[ ]*mb/, p)
+    awk -F: '
+    {
+    # Match decimal pressure values like "0.01 mb", "2 mb", etc.
+    match(\$5, /([0-9]+(\.[0-9]+)?) *mb/, p)
     if (p[1] != "") {
-        key = \$4 ":" \$5 ":" \$6  # key = variable:level:time
+        key = \$4 ":" \$5 ":" \$6  # Ensure uniqueness
         if (!seen[key]++) {
-            printf "%06d:%s\n", p[1], \$0  # prefix pressure for sort
-            }
-         }
-      }
+            # Convert pressure to float * 100000 to retain decimals, pad to 09 digits
+            pressure = p[1] * 100000
+            printf "%09d:%s\n", pressure, \$0
+           }
+       }
+    }
      ' "\$tmp_inv" | sort -n | cut -d: -f2- > "\${tmp_sorted}.sorted"
 
-    echo "Rebuilding GRIB2 with sorted, deduplicated records..."
+        echo "Rebuilding GRIB2 with sorted, deduplicated records..."
     wgrib2 "\$input_file" -i -s -grib "\$output_file" < "\${tmp_sorted}.sorted"
 
     echo "Cleaned GRIB2 file written to: \$output_file"
