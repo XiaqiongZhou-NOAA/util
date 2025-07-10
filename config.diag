@@ -1,4 +1,4 @@
-export machine=hera
+export machine=ursa
 ###ATMO variables
 #VARLIST=("TS" "DSWRFSFC" "ULWRFTOA" "APCP" "ACPCP" "NCPCP" "TCOLW" "TCOLI" "TCOLC" "TCOLS" "LCDC" "MCDC" "HCDC" "TCDC" "T2m" "u10m" "v10m" "PWAT" "CAPE" "CWAT" "TMAX2m" "WIND10m" "TMIN2m")
 #VARLIST_ERA=("sst" "ssrd/86400" "ttr/-86400" "var228*1000/4" "none" "none" "tclw" "tciw" "none" "none" "lcc*100" "mcc*100" "hcc*100" "tcc*100" "t2m" "u10" "v10" "none" "none" "none" "none" "si10" "none")
@@ -32,9 +32,9 @@ export DATAOUT=/lfs/h2/emc/physics/noscrub/$USER/util/sfs_vrfy/data
 export WORKDIR=/lfs/h2/emc/ptmp/$USER/tmp
 export ANADATADIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/data/sfs_diag_ana
 
-#HERA
-export DATAIN=/scratch2/NCEPDEV/ensemble/$USER/archive
-export DATAOUT=/scratch2/NCEPDEV/ensemble/$USER/noscrub/util/sfs_diag/data
-export WORKDIR=/scratch2/NCEPDEV/stmp1/$USER/sfs_diag
-export ANADATADIR=/scratch2/NCEPDEV/ensemble/Xiaqiong.Zhou/noscrub/data/sfs_diag_ana
+#URSA
+export DATAIN=/scratch4/NCEPDEV/ensemble/$USER/archive
+export DATAOUT=/scratch4/NCEPDEV/ensemble/$USER/util/sfs_diag/data
+export WORKDIR=/scratch4/NCEPDEV/stmp/$USER/sfs_diag
+export ANADATADIR=/scratch4/NCEPDEV/ensemble/Xiaqiong.Zhou/data/sfs_diag_ana
 

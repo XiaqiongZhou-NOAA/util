@@ -11,4 +11,6 @@ ocn_monmean.sh: calculate monthly mean based on $VARLIST_OCN. It use CDO to sele
 
 ocn_plot.sh:USe Grads to plot 2D maps. SW and LW are compared with CERES and SST is compared with OISST.
 
+climate_leadmon: Re-org fcst data based on forecast lead months and calcualte climate and anom
+
 
