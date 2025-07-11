@@ -18,6 +18,7 @@
 module load cdo
 source config.diag
 rm -rf $WORKDIR
+VARLIST="${VARLIST[*]}"
 mkdir -p $WORKDIR
 set -x
 run_mean_if_files_exist() {
