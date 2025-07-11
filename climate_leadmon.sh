@@ -109,9 +109,8 @@ for exp in $EXPLIST;do
 	            echo $CDATE
 	            file=$DATAOUT/$var/$exp.$CDATE.${var}
                     cdo seltimestep,$istep $file.1p0.monthly.nc $exp.$CDATE.$var.$icdate.leadmon$istep.nc
-
+                    reset_to_month_start $exp.$CDATE.$var.$icdate.leadmon$istep.nc $exp.$CDATE.$var.$icdate.leadmon$istep.nc.1
                 done
-                reset_to_month_start $exp.$CDATE.$var.$icdate.leadmon$istep.nc $exp.$CDATE.$var.$icdate.leadmon$istep.nc.1
                 cdo mergetime $exp.*.$var.$icdate.leadmon$istep.nc.1 $exp.$var.$icdate.leadmon$istep.nc.1
 		cdo setreftime,1980-01-01,00:00 -settunits,years $exp.$var.$icdate.leadmon$istep.nc.1 $exp.$var.$icdate.leadmon$istep.nc
 		cp -pr $exp.$var.$icdate.leadmon$istep.nc $DATAOUT/$var/.
