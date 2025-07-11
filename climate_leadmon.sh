@@ -121,37 +121,42 @@ for exp in $EXPLIST;do
                          "$exp.$var.$icdate.leadmon2.nc" \
                          "$exp.$var.$icdate.leadmon3.nc" \
                          "$exp.$var.$icdate.leadmon4.nc" \
-                         "$DATAOUT/$var/$exp.$var.$icdate.leadmon2-4.nc"
+                         "$exp.$var.$icdate.leadmon2-4.nc"
+	    reset_to_month_start $exp.$var.$icdate.leadmon2-4.nc $DATAOUT/$var/$exp.$var.$icdate.leadmon2-4.nc
 
              run_mean_if_files_exist \
                          "$exp.$var.$icdate.leadmon5.nc" \
                          "$exp.$var.$icdate.leadmon6.nc" \
                          "$exp.$var.$icdate.leadmon7.nc" \
-                         "$DATAOUT/$var/$exp.$var.$icdate.leadmon5-7.nc"
+                         "$exp.$var.$icdate.leadmon5-7.nc"
+	    reset_to_month_start $exp.$var.$icdate.leadmon5-7.nc $DATAOUT/$var/$exp.$var.$icdate.leadmon5-7.nc
 
             run_mean_if_files_exist \
                          "$exp.$var.$icdate.leadmon8.nc" \
                          "$exp.$var.$icdate.leadmon9.nc" \
                          "$exp.$var.$icdate.leadmon10.nc" \
-                         "$DATAOUT/$var/$exp.$var.$icdate.leadmon8-10.nc"
+                         "$exp.$var.$icdate.leadmon8-10.nc"
+	    reset_to_month_start $exp.$var.$icdate.leadmon8-10.nc $DATAOUT/$var/$exp.$var.$icdate.leadmon8-10.nc
 
             run_mean_if_files_exist \
                          "$exp.$var.$icdate.leadmon11.nc" \
                          "$exp.$var.$icdate.leadmon12.nc" \
-                         "$DATAOUT/$var/$exp.$var.$icdate.leadmon11-12.nc"
+                         "$exp.$var.$icdate.leadmon11-12.nc"
+	    reset_to_month_start $exp.$var.$icdate.leadmon11-12.nc $DATAOUT/$var/$exp.$var.$icdate.leadmon11-12.nc
+
 #monthly climate and anomaly
           for istep in $(seq 1 $Nmonth);do
 
-    	      cdo ymonmean $exp.$var.$icdate.leadmon$istep.nc $DATAOUT/$var/$exp.$var.$icdate.leadmon$istep.climate.nc
-	      cdo ymonsub $exp.$var.$icdate.leadmon$istep.nc $DATAOUT/$var/$exp.$var.$icdate.leadmon$istep.climate.nc $DATAOUT/$var/$exp.$var.$icdate.leadmon$istep.anom.nc
+    	      cdo ymonmean $exp.$var.$icdate.leadmon$istep.nc $DATAOUT/$var/$exp.$var.$icdate.climate.leadmon$istep.nc
+	      cdo ymonsub $exp.$var.$icdate.leadmon$istep.nc $DATAOUT/$var/$exp.$var.$icdate.climate.leadmon$istep.nc $DATAOUT/$var/$exp.$var.$icdate.anom.leadmon$istep.nc
           done
 #seasonal climate and anomaly
           monlist="2-4 5-7 8-10 11-12"
 	  for mon in $monlist;do
 		  file=$DATAOUT/$var/$exp.$var.$icdate.leadmon$mon.nc
 	     if [[ -f "$file" ]]; then
-            	  cdo ymonmean $file $DATAOUT/$var/$exp.$var.$icdate.leadmon$mon.climate.nc
-	          cdo ymonsub $file  $DATAOUT/$var/$exp.$var.$icdate.leadmon$mon.climate.nc $DATAOUT/$var/$exp.$var.$icdate.leadmon$mon.anom.nc
+            	  cdo ymonmean $file $DATAOUT/$var/$exp.$var.$icdate.climate.leadmon$mon.nc
+	          cdo ymonsub $file  $DATAOUT/$var/$exp.$var.$icdate.climate.leadmon$mon.nc $DATAOUT/$var/$exp.$var.$icdate.anom.leadmon$mon.nc
              else
 	       echo "Missing $file"
 	       exit 1
