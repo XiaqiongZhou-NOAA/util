@@ -2,13 +2,14 @@ source config.diag
 WORKDIR=${WORKDIR}_OCN
 rm -rf ${WORKDIR}
 mkdir -p ${WORKDIR}
+
 cd $WORKDIR
 MACHINE=$(echo "$machine" | tr  '[:lower:]' '[:upper:]')
 
 for EXP in $EXPLIST;do
-  for i in "${!VARLIST_OCN[@]}"; do
-    VAR=${VARLIST_OCN[$i]}
-    VAR=$(echo "$VAR" | tr  '[:lower:]' '[:upper:]')
+  for i in "${!VARLIST_NC[@]}"; do
+    VAR=${VARLIST_NC[$i]}
+#    VAR=$(echo "$VAR" | tr  '[:lower:]' '[:upper:]')
 
  	if [ $MACHINE = WCOSS2 ]; then
 
@@ -24,7 +25,7 @@ cat >job_${VAR}_${EXP}.sh <<EOF
 #PBS -l select=1:ncpus=1
 module load intel-classic/2022.2.0.262 intel-oneapi/2022.2.0.262 intel/19.1.3.304
 EOF
- 	elif [ "$MACHINE" = "HERA" ]; then
+else
 cat >job_${VAR}_${EXP}.sh <<EOF
 #!/bin/bash
 #-----------------------------------------------------------
@@ -49,7 +50,8 @@ export VAR=$VAR
 export exp=$EXP
 export DATAIN=$DATAIN
 export FHMAX=$FHMAX
-export INTV=$INTV
+export INTV_ATM=$INTV_ATM
+export INTV_OCN=$INTV_OCN
 export CDATELIST="$CDATELIST"
 export PRESLEV=$PRESLEV
 export DATAOUT=$DATAOUT
@@ -61,7 +63,18 @@ var=\$VAR
 mkdir -p \$WORKDIR
 cd \$WORKDIR
 for CDATE in \$CDATELIST ;do
-datadir=\$DATAIN/\$exp/\$CDATE/ocean/history/
+pdy=\${CDATE:0:8}
+cyc=\${CDATE:8:2}
+ if [ "$VAR" = "iwp_ex" ] || [ "$VAR" = "lwp_ex" ] ; then
+   export INTV=\$INTV_ATM
+   datadir=\$DATAIN/\$exp/sfs.\$pdy/\${cyc}/mem000/model/atmos/history/
+  filename_pre=sfs.t\${cyc}z.sfc
+ else
+  export INTV=\$INTV_OCN
+  echo INTV=\$INTV
+  datadir=\$DATAIN/\$exp/sfs.\$pdy/\${cyc}/mem000/model/ocean/history/
+   filename_pre=sfs.ocean.t\${cyc}z.\${INTV}hr_avg.
+ fi
 mkdir tmp_\$exp.\$CDATE.\${var}
           for ((ifhr=0; ifhr<=FHMAX; ifhr+=INTV)); do
 
@@ -69,7 +82,7 @@ mkdir tmp_\$exp.\$CDATE.\${var}
              if [ \$ifhr -lt 100 ];then
              fhr=\$(printf %03i \$ifhr)
              fi
-	     filename=sfs.ocean.t00z.${INTV}hr_avg.f\${fhr}.nc
+	     filename=\${filename_pre}f\${fhr}.nc
              cdo select,name=\$var \$datadir/\$filename tmp_\$exp.\$CDATE.\${var}/\$exp.\$CDATE.\${var}.f\${fhr}.nc
          done
           mkdir -p \$DATAOUT/\$var

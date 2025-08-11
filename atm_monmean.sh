@@ -23,7 +23,7 @@ cat >job_${VAR}_${EXP}.sh <<EOF
 #PBS -l select=1:ncpus=1
 module load intel-classic/2022.2.0.262 intel-oneapi/2022.2.0.262 intel/19.1.3.304
 EOF
- 	elif [ "$MACHINE" = "URSA" ]; then
+else
 cat >job_${VAR}_${EXP}.sh <<EOF
 #!/bin/bash
 #-----------------------------------------------------------
@@ -33,7 +33,6 @@ cat >job_${VAR}_${EXP}.sh <<EOF
 #SBATCH -t 6:30:00
 #SBATCH -A fv3-cpu
 #SBATCH -q batch
-#SBATCH --partition=hera
 #SBATCH -J fv3
 #SBATCH -o ./log.$VAR.$EXP
 #SBATCH -e ./log.$VAR.$EXP
@@ -48,11 +47,13 @@ export VAR=$VAR
 export exp=$EXP
 export DATAIN=$DATAIN
 export FHMAX=$FHMAX
-export INTV=$INTV
+export INTV=$INTV_ATM
 export CDATELIST="$CDATELIST"
 export PRESLEV=$PRESLEV
 export DATAOUT=$DATAOUT
 export WORKDIR=$WORKDIR
+export INTERPFLAG=$INTERPFLAG_ATM
+
 mkdir -p \$DATAOUT/\$VAR
 
 # Function: sort_by_pressure_mb input.grib2 output.grib2 tmp_prefix
@@ -157,6 +158,9 @@ case "$VAR" in
     ULWRFTOA)
         var=":ULWRF:top of atmosphere:"
         ;;
+    ULWRFSFC)
+        var=":ULWRF:surface:"
+        ;;
     DSWRFTOA)
         var=":DSWRF:top of atmosphere:"
         ;;
@@ -169,9 +173,12 @@ esac
 mkdir -p \$WORKDIR
 cd \$WORKDIR
 for CDATE in \$CDATELIST ;do
-datadir=\$DATAIN/\$exp/\$CDATE/atmos/master/
+
+ pdy=\${CDATE:0:8}
+ cyc=\${CDATE:8:2}
+ datadir=\$DATAIN/\$exp/\sfs.\$pdy/\00/mem000/model/atmos/master/
+#datadir=\$DATAIN/\$exp/\$CDATE/atmos/master/
 #datadir=\$DATAIN/\$exp/\$CDATE/atmos/mem000/master/
-#datadir=\$DATAIN/\$exp/\$CDATE/atmos/
 rm -rf \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.1p0.grb2
 rm -rf \$exp.\$CDATE.\${VAR}.grb2
           for ((ifhr=0; ifhr<=FHMAX; ifhr+=INTV)); do
@@ -192,14 +199,20 @@ rm -rf \$exp.\$CDATE.\${VAR}.grb2
              cat \$exp.\$CDATE.\${VAR}.grb2.tmp>>\$exp.\$CDATE.\${VAR}.grb2
 	     fi
       done
+          if [ \$INTERPFLAG == "YES"  ];then
+            wgrib2 \${exp}.\$CDATE.\${VAR}.grb2 -new_grid latlon 0:360:1.0 -90:181:1.0 \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2
+          else
+            cp -pr \${exp}.\$CDATE.\${VAR}.grb2 \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2
+          fi
 
-      wgrib2 \${exp}.\$CDATE.\${VAR}.grb2 -new_grid latlon 0:360:1.0 -90:181:1.0 \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2
           LEVELS=\$(wgrib2   \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2  -v |grep ":24 hour fcst"| sort -u | wc -l)
           if [ \$VAR == "UGRD" -o  \$VAR == "VGRD" ];then
 	      ((LEVELS=LEVELS/2))
           fi
           echo "Total vertical levels: \$LEVELS"
 
+          g2ctl \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2 > \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2.ctl
+          gribmap -i \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2.ctl
           wgrib2 \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2 -nc_nlev \$LEVELS -netcdf \${exp}.\$CDATE.\${VAR}.1p0.nc
 
       cdo monmean \${exp}.\$CDATE.\${VAR}.1p0.nc \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.monthly.nc
