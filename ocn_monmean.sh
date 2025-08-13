@@ -7,8 +7,8 @@ cd $WORKDIR
 MACHINE=$(echo "$machine" | tr  '[:lower:]' '[:upper:]')
 
 for EXP in $EXPLIST;do
-  for i in "${!VARLIST_NC[@]}"; do
-    VAR=${VARLIST_NC[$i]}
+  for i in "${!VARLIST[@]}"; do
+    VAR=${VARLIST[$i]}
 #    VAR=$(echo "$VAR" | tr  '[:lower:]' '[:upper:]')
 
  	if [ $MACHINE = WCOSS2 ]; then
