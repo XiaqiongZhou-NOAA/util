@@ -12,7 +12,7 @@ echo $lenexp
 for CDATE in $CDATELIST; do
   for i in "${!VARLIST[@]}"; do
     VAR=${VARLIST[$i]}
-    VAR=$(echo "$VAR" | tr  '[:lower:]' '[:upper:]')
+#    VAR=$(echo "$VAR" | tr  '[:lower:]' '[:upper:]')
     VARANA=${VARLIST_OBS[$i]}
     VARANA_TYPE=${VARLIST_OBS_TYPE[$i]}
     VARANA_TYPE=$(echo "$VARANA_TYPE" | tr  '[:lower:]' '[:upper:]')
@@ -22,6 +22,8 @@ for CDATE in $CDATELIST; do
 	    anafile=$ANADATADIR/$CERESFILENAME_CLD
     elif [ "$VARANA_TYPE" = "CERES" ]; then
 	    anafile=$ANADATADIR/$CERESFILENAME
+    elif [ "$VARANA_TYPE" = "CERES_SFC" ]; then
+	    anafile=$ANADATADIR/$CERESFILENAME_SFC
     else
            anafile=$ANADATADIR/$ERAFILENAME
     fi	    
@@ -87,7 +89,7 @@ while(t<=Nmonth)
 ** get OBS monthly mean
    if ( VARA !='none')
       'sdfopen $anafile'
-      'set time 00Z01'mm''yyyy
+      'set time 'mm''yyyy
       'define ana='VARA_name
    else
        'sdfopen  $DATAOUT/'VAR'/'exp.1'.'CDATE'.'VAR'.1p0.monthly.nc'

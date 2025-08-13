@@ -4,18 +4,22 @@ export machine=hercules
 # corresponding OBS/ANA variable names and data source
 #VARLIST_OBS=("ssrd/86400" "tsr/86400" "ttr/-86400" "var228*1000" "none" "none" "tclw" "tciw" "none" "none" "lcc*100" "mcc*100" "hcc*100" "tcc*100" "t2m" "u10" "v10" "none" "none" "none" "none" "si10" "none")
 #VARLOST_OBS_TYPE=("era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5")
-#             1         
-VARLIST=( "DSWRFSFC" "DLWRFSFC" "USWRFSFC" "ULWRFSFC" "USWRFTOA" "ULWRFTOA"  "DSWRFTOA"
-         "APCP" "ACPCP" "NCPCP" "TCOLW" "TCOLI" "TCOLC" "TCOLS" 
+#                      
+VARLIST=( "ALBDO" 
+          "DSWRFSFC" "DLWRFSFC" "USWRFSFC" "ULWRFSFC" "USWRFTOA" "ULWRFTOA"  "DSWRFTOA"
+          "APCP" "ACPCP" "NCPCP" "TCOLW" "TCOLI" "TCOLC" "TCOLS" 
           "LCDC" "MCDC" "HCDC" "TCDC" 
           "T2M" "U10M" "V10M" "PWAT" "CAPE" "CWAT" "TMAX2M" "WIND10M" "TMIN2M")
 
-VARLIST_OBS=("adj_sw_dn_all_s" "adj_lw_dn_all_s" "adj_sw_up_all_s" "adj_atmos_lw_up" "adj_sw_up_all_t" "adj_lw_up_all_t" "adj_sw_dw_all_t"
-              "var228*1000" "none" "none" "tclw" "tciw" "none"  "none"
-              "cldarea_low_mon" "cldarea_mid_low" "cldarea_high_mo" "cldarea_total_m"
-               "t2m" "u10" "v10" "none" "none" "none" "none" "si10" "none")
+VARLIST=("ALBDO")
+VARLIST_OBS=("ini_albedo_mon*100" 
+             "adj_sw_dn_all_s" "adj_lw_dn_all_s" "adj_sw_up_all_s" "adj_atmos_lw_up" "adj_sw_up_all_t" "adj_lw_up_all_t" "adj_sw_dw_all_t"
+             "var228*1000" "none" "none" "tclw" "tciw" "none"  "none"
+             "cldarea_low_mon" "cldarea_mid_low" "cldarea_high_mo" "cldarea_total_m"
+             "t2m" "u10" "v10" "none" "none" "none" "none" "si10" "none")
 
-VARLIST_OBS_TYPE=("ceres" "ceres" "ceres" "ceres" "ceres" "ceres" "ceres" 
+VARLIST_OBS_TYPE=("ceres_cld" 
+                  "ceres" "ceres" "ceres" "ceres" "ceres" "ceres" "ceres" 
                   "era5" "era5" "era5" "era5" "era5" "era5" "era5" 
                   "ceres_cld" "ceres_cld" "ceres_cld" "ceres_cld" 
                   "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5" "era5")
@@ -25,25 +29,26 @@ VARLIST_OBS_TYPE=("ceres" "ceres" "ceres" "ceres" "ceres" "ceres" "ceres"
 #VARLIST=("ICMR" "SNMR" "CLMR" "RWMR" "UGRD" "TMP")
 #VARLIST_OBS=("ciwc" "cswc" "clwc" "crwc" "u" "tmp")
 #export PRESLEV=YES
+
 # flag to interpolate to latlon 1Deg
 export INTERPFLAG_ATM=YES
 export INTERPFLAG_OCN=YES
 
 ##variables from atmos/ocean netcdf files  
 #VARLIST=("SST" "SW" "LW" "iwp_ex" "lwp_ex")
-#VARLIST_OBS=("sst" "sfc_net_sw_all_" "sfc_net_lw_all_" "cldtyp_iwp_tot_/1000" "cldtyp_lwp_tot_/1000")
-#VARLIST_OBS_TYPE=("oisst" "ceres" "ceres" "ceres_cld" "ceres_cld")
+#VARLIST_OBS=("sst" "sfc_net_sw_all_" "sfc_net_lw_all_" "iwp_total_mon/1000" "lwp_total_mon/1000")
+#VARLIST_OBS_TYPE=("oisst" "ceres_sfc" "ceres_sfc" "ceres_cld" "ceres_cld")
 
 ##
-export FHMAX=8784
+export FHMAX=7200
 export nens=0               #ensemble member
 export INTV_OCN=24
 export INTV_ATM=24
-export CDATELIST="2011050100 2011110100"
-export EXPLIST="c192sfs"
+export CDATELIST="2011050100 2011110100 2015050100 2015110100"
+export EXPLIST="c192sfs fage"
 
 # For plotting 
-export Nmonth=12    # No. of fcst lead month
+export Nmonth=9    # No. of fcst lead month
 export GRADSDIR=./grads-scripts
 export cmap_field=radar
 export cmap_diff=blue2red
@@ -59,6 +64,7 @@ export ERAFILENAME=all2Dvar.1994-2024.mon.1p0.nc
 # -- ceres
 #export CERESFILENAME=CERES_EBAF_Ed4.2.1_Subset_200003-202504.nc
 export CERESFILENAME=CERES_SYN1deg-Month_Terra-Aqua-MODIS_Ed4.1_Subset_200003-202407.nc
+export CERESFILENAME_SFC=CERES_EBAF_Ed4.2_Subset_200003-202407.nc
 # -- ceres_cld
 export CERESFILENAME_CLD=CERES_CldTypHist-MON_GEO-MODIS_Ed4.1_Subse.nc
 export CERESFILENAME_CLD=CERES_SYN1deg-Month_Terra-Aqua-NOAA20_Ed4.2_Subset_200003-202505.nc
@@ -84,6 +90,6 @@ export ANADATADIR=/work/noaa/global/xzhou/data/sfs_diag_ana
 #HERCULES
 export DATAIN=/work2/noaa/stmp/$USER/COMROOT/
 export DATAOUT=/work2/noaa/global/$USER/util/sfs_diag/data_an
-export WORKDIR=/work2/noaa/stmp/$USER/sfs_diag1
+export WORKDIR=/work2/noaa/stmp/$USER/sfs_diag2
 export ANADATADIR=/work/noaa/global/xzhou/data/sfs_diag_ana
 
