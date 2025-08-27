@@ -202,7 +202,7 @@ while(t<=Nmonth)
        iexp=2
        while(iexp<=lenexp)
        '$GRADSDIR/subplot.gs 'nplots'  'nplot
-         if(iexp=2)
+         if(iexp=2 & VARA !='none')
            'set stat on'
            'set grid off'
            'set grads off'
