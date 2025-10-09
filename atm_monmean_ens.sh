@@ -1,4 +1,5 @@
 source config.diag
+echo WORKDIR=$WORKDIR
 rm -rf $WORKDIR
 mkdir -p $WORKDIR
 cd $WORKDIR
@@ -53,6 +54,8 @@ export PRESLEV=$PRESLEV
 export DATAOUT=$DATAOUT
 export WORKDIR=$WORKDIR
 export INTERPFLAG=$INTERPFLAG_ATM
+export NMEM=$NENS
+export GET_ENSMEAN=$GET_ENSMEAN
 
 mkdir -p \$DATAOUT/\$VAR
 
@@ -176,12 +179,17 @@ for CDATE in \$CDATELIST ;do
 
  pdy=\${CDATE:0:8}
  cyc=\${CDATE:8:2}
- datadir=\$DATAIN/\$exp/\sfs.\$pdy/\00/mem000/model/atmos/master/
-#datadir=\$DATAIN/\$exp/\$CDATE/atmos/master/
+ for m in \$(seq 0 \$NMEM) ;do
+    mem=\$(printf "%03d" "\$m")
+
+    output_prefix=\$exp.\$CDATE.\${VAR}.mem\$m
+    grb2file=\$output_prefix.grb2
+ 
+    datadir=\$DATAIN/\$exp/\sfs.\$pdy/\00/mem\$mem/model/atmos/master/
 #datadir=\$DATAIN/\$exp/\$CDATE/atmos/mem000/master/
-rm -rf \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.1p0.grb2
-rm -rf \$exp.\$CDATE.\${VAR}.grb2
-          for ((ifhr=0; ifhr<=FHMAX; ifhr+=INTV)); do
+    rm -rf \$DATAOUT/\$VAR/\$output_prefix.1p0.grb2
+    rm -rf \$grb2file
+    for ((ifhr=0; ifhr<=FHMAX; ifhr+=INTV)); do
 
             ((fhr=ifhr))
              if [ \$ifhr -lt 100 ];then
@@ -189,34 +197,41 @@ rm -rf \$exp.\$CDATE.\${VAR}.grb2
              fi
 	     filename=sfs.t00z.master.grb2f\$fhr
 
-             wgrib2 \$datadir/\$filename -match "\${var}" -grib \$exp.\$CDATE.\${VAR}.grb2.tmp
+             wgrib2 \$datadir/\$filename -match "\${var}" -grib \$grb2file.tmp
              if [[ \${PRESLEV} == "YES" ]]; then
 
-              wgrib2  \$exp.\$CDATE.\${VAR}.grb2.tmp -s |grep "mb" | wgrib2 -i  \$exp.\$CDATE.\${VAR}.grb2.tmp  -grib \$exp.\$CDATE.\${VAR}.grb2.tmp1
-             sort_by_pressure_mb  \$exp.\$CDATE.\${VAR}.grb2.tmp1  \$exp.\$CDATE.\${VAR}.grb2.tmp2  \$exp.\$CDATE.\${VAR}.\$fhr
-             cat \$exp.\$CDATE.\${VAR}.grb2.tmp2>>\$exp.\$CDATE.\${VAR}.grb2
+              wgrib2  \$grb2file.tmp -s |grep "mb" | wgrib2 -i  \$grb2file.tmp  -grib \$grb2file.tmp1
+             sort_by_pressure_mb  \$grb2file.tmp1 \$grb2file.tmp2 \$exp.\$CDATE.\${VAR}.\$fhr.mem\$mem
+             cat \$grb2file.tmp2>>\$grb2file
              else
-             cat \$exp.\$CDATE.\${VAR}.grb2.tmp>>\$exp.\$CDATE.\${VAR}.grb2
+             cat \$grb2file.tmp>>\$grb2file
 	     fi
       done
           if [ \$INTERPFLAG == "YES"  ];then
-            wgrib2 \${exp}.\$CDATE.\${VAR}.grb2 -new_grid latlon 0:360:1.0 -90:181:1.0 \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2
+            wgrib2 \$grb2file -new_grid latlon 0:360:1.0 -90:181:1.0 \$DATAOUT/\$VAR/\$output_prefix.1p0.grb2
           else
-            cp -pr \${exp}.\$CDATE.\${VAR}.grb2 \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2
+            cp -pr \$grb2file \$DATAOUT/\$VAR/\$output_prefix.1p0.grb2
           fi
 
-          LEVELS=\$(wgrib2   \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2  -v |grep ":24 hour fcst"| sort -u | wc -l)
+          LEVELS=\$(wgrib2   \$DATAOUT/\$VAR/\$output_prefix.1p0.grb2  -v |grep ":24 hour fcst"| sort -u | wc -l)
           if [ \$VAR == "UGRD" -o  \$VAR == "VGRD" ];then
 	      ((LEVELS=LEVELS/2))
           fi
           echo "Total vertical levels: \$LEVELS"
 
-          g2ctl \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2 > \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2.ctl
-          gribmap -i \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2.ctl
-          wgrib2 \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.grb2 -nc_nlev \$LEVELS -netcdf \${exp}.\$CDATE.\${VAR}.1p0.nc
+          g2ctl \$DATAOUT/\$VAR/\$output_prefix.1p0.grb2 > \$DATAOUT/\$VAR/\$output_prefix.1p0.grb2.ctl
+          gribmap -i \$DATAOUT/\$VAR/\$output_prefix.1p0.grb2.ctl
+          wgrib2 \$DATAOUT/\$VAR/\$output_prefix.1p0.grb2 -nc_nlev \$LEVELS -netcdf \$DATAOUT/\$VAR/\$output_prefix.1p0.nc
 
-      cdo monmean \${exp}.\$CDATE.\${VAR}.1p0.nc \$DATAOUT/\$VAR/\${exp}.\$CDATE.\${VAR}.1p0.monthly.nc
+      cdo monmean \$DATAOUT/\$VAR/\$output_prefix.1p0.nc \$DATAOUT/\$VAR/\$output_prefix.1p0.monthly.nc
       
+      echo "mem\$mem"
+  done
+  if [ \$GET_ENSSTAT == "YES" -a \$NMEM -gt 0 ]; then
+     cdo ensmean \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.mem[0-\$NMEM].1p0.monthly.nc \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensmean0-\$NMEM.1p0.monthly.nc
+     cdo ensstd \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.mem[0-\$NMEM].1p0.monthly.nc \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensstd0-\$NMEM.1p0.monthly.nc
+  fi
+     
 echo \$CDATE
 done
 EOF

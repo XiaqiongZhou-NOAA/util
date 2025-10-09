@@ -41,8 +41,12 @@ VARANA_TYPE='$VARANA_TYPE'
 plot_monmean='$plot_monmean'
 plot_diff='$plot_diff'
 Nmonth=$Nmonth
+PRESLEV='$PRESLEV'
+LEVS=$LEVS
 cmap_field="$cmap_field"
 cmap_diff="$cmap_diff"
+cmap_bias="$cmap_bias"
+nmem=$NENS
 t=1
 lenexp=$lenexp
 nplots=lenexp*3
@@ -62,7 +66,11 @@ while(t<=Nmonth)
    while (iexp<=lenexp)
       exp.iexp=subwrd(EXPLIST,iexp)
       exp=subwrd(EXPLIST,iexp)
-     'sdfopen  $DATAOUT/'VAR'/'exp.iexp'.'CDATE'.'VAR'.1p0.monthly.nc'
+      if (nmem>0)
+         'sdfopen  $DATAOUT/'VAR'/'exp.iexp'.'CDATE'.'VAR'.ensmean0-'nmem'.1p0.monthly.nc'
+      else
+         'sdfopen  $DATAOUT/'VAR'/'exp.iexp'.'CDATE'.'VAR'.mem0.1p0.monthly.nc'
+      endif
      'set t 't
      'q time'
       say result
@@ -81,6 +89,9 @@ while(t<=Nmonth)
       say res
       varname=subwrd(res,1)
       say varname
+      if (PRESLEV='YES')
+        'set lev 'LEVS
+      endif
       'define fcst'iexp'='varname
       iexp=iexp+1
       'close 1'
@@ -92,7 +103,11 @@ while(t<=Nmonth)
       'set time 'mm''yyyy
       'define ana='VARA_name
    else
-       'sdfopen  $DATAOUT/'VAR'/'exp.1'.'CDATE'.'VAR'.1p0.monthly.nc'
+      if (nmem>0)
+         'sdfopen  $DATAOUT/'VAR'/'exp.1'.'CDATE'.'VAR'.mem0-'nmem'.1p0.monthly.nc'
+      else
+         'sdfopen  $DATAOUT/'VAR'/'exp.1'.'CDATE'.'VAR'.mem0.1p0.monthly.nc'
+      endif
    endif
    say result
 
@@ -128,7 +143,7 @@ while(t<=Nmonth)
             say result
             ress=subwrd(result,4)
             res=substr(ress,1,10)
-            'draw title 'exp.iexp' 'VAR' \ mean='res' 'mm' 'yyyy
+            'draw title 'exp.iexp' 'VAR' \ mean='res' 'mm' 'yyyy' NENS='nmem
             '$GRADSDIR/cbarm.gs 1 0 1'
             iexp=iexp+1
             nplot=nplot+1
@@ -192,7 +207,7 @@ while(t<=Nmonth)
              ress=subwrd(result,4)
              res=substr(ress,1,10)
             '$GRADSDIR/cbarm.gs 1 0 1'
-             'draw title 'exp.iexp' 'VAR' bias against 'VARANA_TYPE'\ mean='res' 'mm' 'yyyy
+             'draw title 'exp.iexp' 'VAR' bias against 'VARANA_TYPE'\ mean='res' 'mm' 'yyyy' NENS='nmem
              iexp=iexp+1
              nplot=nplot+1
          endwhile
@@ -200,9 +215,9 @@ while(t<=Nmonth)
 ** plot difference between experiments
     if (lenexp>=2 & plot_diff='YES' )
        iexp=2
-       while(iexp<=lenexp)
+       while(iexp<=lenexp )
        '$GRADSDIR/subplot.gs 'nplots'  'nplot
-         if(iexp=2 & VARA !='none')
+         if(iexp=2 & VARA='none')
            'set stat on'
            'set grid off'
            'set grads off'
@@ -238,7 +253,7 @@ while(t<=Nmonth)
         ress=subwrd(result,4)
         res=substr(ress,1,10)
        '$GRADSDIR/cbarm.gs 1 0 1'
-       'draw title 'exp.iexp'-'exp.1' 'VAR' diff\ mean='res' 'mm' 'yyyy
+       'draw title 'exp.iexp'-'exp.1' 'VAR' diff\ mean='res' 'mm' 'yyyy' NENS='nmem
         iexp=iexp+1
         nplot=nplot+1
       endwhile
@@ -253,7 +268,7 @@ reinit
 endwhile
 'quit'
 EOF
-grads -blc "run  plot_${VAR}_${CDATE}.gs"
+grads -pblc "run  plot_${VAR}_${CDATE}.gs"
 done
 done
 

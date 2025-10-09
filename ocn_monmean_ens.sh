@@ -1,5 +1,6 @@
 source config.diag
 WORKDIR=${WORKDIR}_OCN
+echo WORKDIR=$WORKDIR
 rm -rf ${WORKDIR}
 mkdir -p ${WORKDIR}
 
@@ -7,8 +8,8 @@ cd $WORKDIR
 MACHINE=$(echo "$machine" | tr  '[:lower:]' '[:upper:]')
 
 for EXP in $EXPLIST;do
-  for i in "${!VARLIST[@]}"; do
-    VAR=${VARLIST[$i]}
+  for i in "${!VARLIST_NC[@]}"; do
+    VAR=${VARLIST_NC[$i]}
 #    VAR=$(echo "$VAR" | tr  '[:lower:]' '[:upper:]')
 
  	if [ $MACHINE = WCOSS2 ]; then
@@ -56,6 +57,7 @@ export CDATELIST="$CDATELIST"
 export PRESLEV=$PRESLEV
 export DATAOUT=$DATAOUT
 export WORKDIR=$WORKDIR
+export export NMEM=$NENS
 mkdir -p \$DATAOUT/\$VAR
 
 var=\$VAR
@@ -65,31 +67,50 @@ cd \$WORKDIR
 for CDATE in \$CDATELIST ;do
 pdy=\${CDATE:0:8}
 cyc=\${CDATE:8:2}
- if [ "$VAR" = "iwp_ex" ] || [ "$VAR" = "lwp_ex" ] ; then
-   export INTV=\$INTV_ATM
-   datadir=\$DATAIN/\$exp/sfs.\$pdy/\${cyc}/mem000/model/atmos/history/
-  filename_pre=sfs.t\${cyc}z.sfc
- else
-  export INTV=\$INTV_OCN
-  echo INTV=\$INTV
-  datadir=\$DATAIN/\$exp/sfs.\$pdy/\${cyc}/mem000/model/ocean/history/
-   filename_pre=sfs.ocean.t\${cyc}z.\${INTV}hr_avg.
- fi
 mkdir tmp_\$exp.\$CDATE.\${var}
-          for ((ifhr=0; ifhr<=FHMAX; ifhr+=INTV)); do
+ for m in \$(seq 0 \$NMEM) ;do
+     mem=\$(printf "%03d" "\$m")
+     output_prefix=\$exp.\$CDATE.\${VAR}.mem\$m
+
+
+     case "$VAR" in 
+	 iwp_ex|lwp_ex|cnvw|cldfra)
+           export INTV=\$INTV_ATM
+           datadir=\$DATAIN/\$exp/sfs.\$pdy/\${cyc}/mem\$mem/model/atmos/history/
+           filename_pre=sfs.t\${cyc}z.sfc
+           ;;
+        clwmr|snmr|icmr|rwmr|spfh|grle)
+           export INTV=\$INTV_ATM
+           datadir=\$DATAIN/\$exp/sfs.\$pdy/\${cyc}/mem\$mem/model/atmos/history/
+           filename_pre=sfs.t\${cyc}z.atm
+           ;;
+        *)
+ 
+           export INTV=\$INTV_OCN
+           echo INTV=\$INTV
+           datadir=\$DATAIN/\$exp/sfs.\$pdy/\${cyc}/mem\$mem/model/ocean/history/
+           filename_pre=sfs.ocean.t\${cyc}z.\${INTV}hr_avg.
+     esac
+    for ((ifhr=0; ifhr<=FHMAX; ifhr+=INTV)); do
 
             ((fhr=ifhr))
              if [ \$ifhr -lt 100 ];then
              fhr=\$(printf %03i \$ifhr)
              fi
 	     filename=\${filename_pre}f\${fhr}.nc
-             cdo select,name=\$var \$datadir/\$filename tmp_\$exp.\$CDATE.\${var}/\$exp.\$CDATE.\${var}.f\${fhr}.nc
-         done
-          mkdir -p \$DATAOUT/\$var
+             cdo select,name=\$var \$datadir/\$filename tmp_\$exp.\$CDATE.\${var}/\$exp.\$CDATE.\${var}.f\${fhr}.\$mem.nc
+
+    done
           
-          cdo mergetime tmp_\$exp.\$CDATE.\$var/\$exp.\$CDATE.\$var.f*.nc \$exp.\$CDATE.\${var}.nc
-          cdo monmean  \$exp.\$CDATE.\${var}.nc  \$DATAOUT/\$var/\$exp.\$CDATE.\${var}.monthly.nc
-          cdo remapbil,r360x181 \$DATAOUT/\$var/\$exp.\$CDATE.\${var}.monthly.nc  \$DATAOUT\/\$var/\$exp.\$CDATE.\${var}.1p0.monthly.nc
+          cdo mergetime tmp_\$exp.\$CDATE.\$var/\$exp.\$CDATE.\$var.f*.\$mem.nc \$output_prefix.nc
+          cdo monmean \$output_prefix.nc \$output_prefix.monthly.nc
+          cdo remapbil,r360x181 \$output_prefix.monthly.nc \$DATAOUT\/\$var/\$output_prefix.1p0.monthly.nc
+ done
+  if [ \$GET_ENSSTAT == "YES" -a \$NMEM -gt 0 ]; then
+     cdo ensmean \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.mem[0-\$NMEM].1p0.monthly.nc \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensmean0-\$NMEM.1p0.monthly.nc
+     cdo ensstd \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.mem[0-\$NMEM].1p0.monthly.nc \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensstd0-\$NMEM.1p0.monthly.nc
+  fi
+
 
       
 echo \$CDATE

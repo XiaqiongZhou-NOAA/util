@@ -11,10 +11,9 @@ VARLIST=( "ALBDO"
           "LCDC" "MCDC" "HCDC" "TCDC" 
           "T2M" "U10M" "V10M" "PWAT" "CAPE" "CWAT" "TMAX2M" "WIND10M" "TMIN2M")
 
-VARLIST=("ALBDO")
 VARLIST_OBS=("ini_albedo_mon*100" 
              "adj_sw_dn_all_s" "adj_lw_dn_all_s" "adj_sw_up_all_s" "adj_atmos_lw_up" "adj_sw_up_all_t" "adj_lw_up_all_t" "adj_sw_dw_all_t"
-             "var228*1000" "none" "none" "tclw" "tciw" "none"  "none"
+             "var228*1000/4" "none" "none" "tclw" "tciw" "none"  "none"
              "cldarea_low_mon" "cldarea_mid_low" "cldarea_high_mo" "cldarea_total_m"
              "t2m" "u10" "v10" "none" "none" "none" "none" "si10" "none")
 
@@ -26,40 +25,60 @@ VARLIST_OBS_TYPE=("ceres_cld"
 
 
 ### ATM 3D VAR
-#VARLIST=("ICMR" "SNMR" "CLMR" "RWMR" "UGRD" "TMP")
-#VARLIST_OBS=("ciwc" "cswc" "clwc" "crwc" "u" "tmp")
+#VARLIST=("ICMR" "SNMR" "CLMR" "RWMR" "UGRD" "TMP" "GRLE" "SPFH")
+#VARLIST_OBS=("ciwc" "cswc" "clwc" "crwc" "u" "tmp" "none" "q")
+##VARLIST_OBS_TYPE=("era5" "era5" "era5" "era5" "era5" "era5" "nonw" "era5") 
 #export PRESLEV=YES
 
 # flag to interpolate to latlon 1Deg
 export INTERPFLAG_ATM=YES
 export INTERPFLAG_OCN=YES
 
-##variables from atmos/ocean netcdf files  
-#VARLIST=("SST" "SW" "LW" "iwp_ex" "lwp_ex")
-#VARLIST_OBS=("sst" "sfc_net_sw_all_" "sfc_net_lw_all_" "iwp_total_mon/1000" "lwp_total_mon/1000")
-#VARLIST_OBS_TYPE=("oisst" "ceres_sfc" "ceres_sfc" "ceres_cld" "ceres_cld")
+#variables from atmos/ocean netcdf files  
+#ocean netcdf
+VARLIST=("SST" "SW" "LW")
+VARLIST_OBS=("sst" "sfc_net_sw_all_" "sfc_net_lw_all_")
+VARLIST_OBS_TYPE=("oisst" "ceres_sfc" "ceres_sfc")
+
+#atmos netcdf
+#VARLIST=( "iwp_ex" "lwp_ex" "cldfra" "cnvw" "snmr" "icmr" "rwmr" "grle" "spfh" "clwmr")
+#VARLIST_OBS=("iwp_total_mon/1000" "lwp_total_mon/1000" "none" "none" "cswc" "ciwc" "crwc" "none" "q" "clwc")
+#VARLIST_OBS_TYPE=("ceres_cld" "ceres_cld" "none" "none" "era5" "era5" "era5" "none" "era5" "era5") 
 
 ##
-export FHMAX=7200
-export nens=0               #ensemble member
+export FHMAX=8796
+export NENS=10               #ensemble member
+export GET_ENSSTAT=YES       #get ensemble mean and std
 export INTV_OCN=24
-export INTV_ATM=24
-export CDATELIST="2011050100 2011110100 2015050100 2015110100"
-export EXPLIST="c192sfs fage"
+export INTV_ATM=6
+
+#export CDATELIST="1994110100 1995110100 1996110100 1997110100 1998110100 1999110100 2000110100 2001110100 2002110100 2003110100 2004110100 2005110100 2006110100 2007110100 2008110100 2009110100 2010110100 2011110100 2012110100 2013110100 2014110100 2015110100 2016110100 2017110100 2018110100 2019110100 2020110100 2021110100 2022110100 2023110100"
+#export CDATELIST="1994050100 1995050100 1996050100 1997050100 1998050100 1999050100 2000050100 2001050100 2002050100 2003050100 2004050100 2005050100 2006050100 2007050100 2008050100 2009050100 2010050100 2011050100 2012050100 2013050100 2014050100 2015050100 2016050100 2017050100 2018050100 2019050100 2020050100 2021050100 2022050100 2023050100"
+export CDATELIST="2015110100 1994050100"
+export EXPLIST="sfs_c96 sfspdc_c96"
 
 # For plotting 
-export Nmonth=9    # No. of fcst lead month
+export Nmonth=12    # No. of fcst lead month
 export GRADSDIR=./grads-scripts
+export LEADMON="1 2 3 4 5 6 7 8 9 10 11 12 2-4"
 export cmap_field=radar
+export cmap_bias=blue2red
+export cmap_diff="darkblue->white->darkred"
 export cmap_diff=blue2red
+export plot_monmean=NO  #plot monthly mean flag
+export plot_diff=YES     #plot experiments difference
+export plot_2dmaps=NO
+export plot_timeseries=YES
+# to plot z-y zonal mean plot
 export LEVS=1000   #hPa
 export LEVE=50     #hPa
-export plot_monmean=YES  #plot monthly mean flag
-export plot_diff=YES     #plot experiments difference
+#when PRESLEV=YES,select pressure levels to plot
+export LEVLISTS="900 850 600"
 
 # File name of obs and analysis
 # 
-# -- era5 2D; For atm3d varibles use varname.1994-2024.mon.1p0.nc in $ANADATADIR/ERA5_3D
+# -- era5 2D; 
+# For atm3d varibles use varname.1994-2024.mon.1p0.nc in $ANADATADIR/ERA5_3D
 export ERAFILENAME=all2Dvar.1994-2024.mon.1p0.nc
 # -- ceres
 #export CERESFILENAME=CERES_EBAF_Ed4.2.1_Subset_200003-202504.nc
@@ -77,12 +96,7 @@ export DATAIN=/lfs/h2/emc/physics/noscrub/$USER/archive
 export DATAOUT=/lfs/h2/emc/physics/noscrub/$USER/util/sfs_vrfy/data
 export WORKDIR=/lfs/h2/emc/ptmp/$USER/tmp
 export ANADATADIR=/lfs/h2/emc/physics/noscrub/xiaqiong.zhou/data/sfs_diag_ana
-#Ursa
-export DATAIN=/scratch4/NCEPDEV/ensemble/$USER/archive
-export DATAOUT=/scratch4/NCEPDEV/ensemble/$USER/noscrub/util/sfs_diag/data
-export WORKDIR=/scratch4/NCEPDEV/stmp1/$USER/sfs_diag
-export ANADATADIR=/scratch4/NCEPDEV/ensemble/Xiaqiong.Zhou/noscrub/data/sfs_diag_ana
-#Orion
+#orion
 export DATAIN=/work/noaa/global/acheng/archive/
 export DATAOUT=/work/noaa/global/$USER/util/sfs_diag/data_an
 export WORKDIR=/work/noaa/stmp/$USER/sfs_diag
@@ -92,4 +106,11 @@ export DATAIN=/work2/noaa/stmp/$USER/COMROOT/
 export DATAOUT=/work2/noaa/global/$USER/util/sfs_diag/data_an
 export WORKDIR=/work2/noaa/stmp/$USER/sfs_diag2
 export ANADATADIR=/work/noaa/global/xzhou/data/sfs_diag_ana
-
+#Ursa
+export DATAIN=/scratch4/NCEPDEV/stmp/$USER/COMROOT
+export DATAOUT=/scratch4/NCEPDEV/ensemble/$USER/util/sfs_diag/data
+export DATAIN_MON=/scratch4/BMC/gsienkf/Philip.Pegion/SFS/
+RANDOM_NUM=$(( $(date +%s) % 100 + 1 ))
+export WORKDIR=/scratch4/NCEPDEV/stmp/$USER/sfs_diag$RANDOM_NUM
+export ANADATADIR=/scratch4/NCEPDEV/ensemble/Xiaqiong.Zhou//data/sfs_diag_ana
+#Orion
