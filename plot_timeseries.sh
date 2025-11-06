@@ -70,7 +70,7 @@ while(t<=Nmonth)
       exp.iexp=subwrd(EXPLIST,iexp)
       exp=subwrd(EXPLIST,iexp)
       if (nmem>0)
-         'sdfopen  $DATAOUT/'VAR'/'exp.iexp'.'CDATE'.'VAR'.ensmean0-'nmem'.1p0.monthly.nc'
+         'sdfopen  $DATAOUT/'VAR'/'exp.iexp'.'CDATE'.'VAR'.mem0-'nmem'.1p0.monthly.nc'
       else
          'sdfopen  $DATAOUT/'VAR'/'exp.iexp'.'CDATE'.'VAR'.mem0.1p0.monthly.nc'
       endif
@@ -107,7 +107,7 @@ while(t<=Nmonth)
       'define ana='VARA_name
    else
       if (nmem>0)
-         'sdfopen  $DATAOUT/'VAR'/'exp.1'.'CDATE'.'VAR'.ensmean0-'nmem'.1p0.monthly.nc'
+         'sdfopen  $DATAOUT/'VAR'/'exp.1'.'CDATE'.'VAR'.mem0-'nmem'.1p0.monthly.nc'
       else
          'sdfopen  $DATAOUT/'VAR'/'exp.1'.'CDATE'.'VAR'.mem0.1p0.monthly.nc'
       endif
@@ -301,7 +301,7 @@ iexp=1
       exp.iexp=subwrd(EXPLIST,iexp)
       exp=subwrd(EXPLIST,iexp)
       if (nmem>0)
-         'sdfopen  $DATAOUT/'VAR'/'exp.iexp'.'CDATE'.'VAR'.ensmean0-'nmem'.1p0.monthly.nc'
+         'sdfopen  $DATAOUT/'VAR'/'exp.iexp'.'CDATE'.'VAR'.mem0-'nmem'.1p0.monthly.nc'
       else
          'sdfopen  $DATAOUT/'VAR'/'exp.iexp'.'CDATE'.'VAR'.mem0.1p0.monthly.nc'
       endif
@@ -334,11 +334,11 @@ iexp=1
       'set lon 0'
       'set lat 0'
       'define fcstGLB'iexp'=aave('varname',g)'
-      'define fcstNH'iexp'=ave(ave('varname',lat=20,lat=90),lon=0,lon=360)'
-      'define fcstSH'iexp'=ave(ave('varname',lat=-90,lat=-20),lon=0,lon=360)'
-      'define fcstTR'iexp'=ave(ave('varname',lat=-20,lat=20),lon=0,lon=360)'
+      'define fcstNH'iexp'=ave(ave('varname',lat=30,lat=90),lon=0,lon=360)'
+      'define fcstSH'iexp'=ave(ave('varname',lat=-90,lat=-30),lon=0,lon=360)'
+      'define fcstTR'iexp'=ave(ave('varname',lat=-30,lat=30),lon=0,lon=360)'
       if (VAR=SST) 
-          'define fcstNINO34'iexp'=ave(ave('varname',lat=-20,lat=20),lon=0,lon=360)'
+          'define fcstNINO34'iexp'=ave(ave('varname',lat=-5,lat=5),lon=190,lon=240)'
       endif
       iexp=iexp+1
       'close 1'
@@ -350,16 +350,16 @@ iexp=1
       'set time 'mm''yyyy' 'mm1''yyyy1
       'set lon 0'
       'set lat 0'
-      'define anaGLB=aave('VARA_name',g)'
-      'define anaNH=ave(ave('VARA_name',lat=20,lat=90),lon=0,lon=360)'
-      'define anaSH=ave(ave('VARA_name',lat=-90,lat=-20),lon=0,lon=360)'
-      'define anaTR=ave(ave('VARA_name',lat=-20,lat=20),lon=0,lon=360)'
+      'define anaGLB=aave('VARA_name',g)*fcstGLB1/fcstGLB1'
+      'define anaNH=ave(ave('VARA_name',lat=30,lat=90),lon=0,lon=360)*fcstNH1/fcstNH1'
+      'define anaSH=ave(ave('VARA_name',lat=-90,lat=-30),lon=0,lon=360)*fcstSH1/fcstSH1'
+      'define anaTR=ave(ave('VARA_name',lat=-30,lat=30),lon=0,lon=360)'
       if (VAR=SST) 
          'define anaNINO34=ave(ave('VARA_name',lat=-5,lat=5),lon=190,lon=240)'
       endif
    else
       if (nmem>0)
-         'sdfopen  $DATAOUT/'VAR'/'exp.1'.'CDATE'.'VAR'.ensmean0-'nmem'.1p0.monthly.nc'
+         'sdfopen  $DATAOUT/'VAR'/'exp.1'.'CDATE'.'VAR'.mem0-'nmem'.1p0.monthly.nc'
       else
          'sdfopen  $DATAOUT/'VAR'/'exp.1'.'CDATE'.'VAR'.mem0.1p0.monthly.nc'
       endif
@@ -392,8 +392,10 @@ iexp=1
         'set stat on'
         'd ana'region
          range=sublin(result,9)
-         cmin=subwrd(range,5)*0.8
-         cmax=subwrd(range,6)*1.2
+         cmin=subwrd(range,5)
+         cmax=subwrd(range,6)
+         cmax=cmax+(cmax-cmin)*0.2
+         cmin=cmin-(cmax-cmin)*0.2
          cint=subwrd(range,7)
          'c'
           'set vrange 'cmin' 'cmax
@@ -417,7 +419,7 @@ iexp=1
            'd fcst'region''iexp
          else
             if(iexp=1)
-             'd fcst'region'iexp
+             'd fcst'region''iexp
               range=sublin(result,9)
               cmin=subwrd(range,5)
               cmax=subwrd(range,6)
