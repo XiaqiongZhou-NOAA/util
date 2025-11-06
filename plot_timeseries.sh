@@ -348,6 +348,9 @@ iexp=1
    if ( VARA !='none')
       'sdfopen $anafile'
       'set time 'mm''yyyy' 'mm1''yyyy1
+      if (PRESLEV='YES')
+        'set lev 'LEVS
+      endif
       'set lon 0'
       'set lat 0'
       'define anaGLB=aave('VARA_name',g)*fcstGLB1/fcstGLB1'
@@ -363,6 +366,12 @@ iexp=1
       else
          'sdfopen  $DATAOUT/'VAR'/'exp.1'.'CDATE'.'VAR'.mem0.1p0.monthly.nc'
       endif
+      if (PRESLEV='YES')
+        'set lev 'LEVS
+      endif
+      'set lon 0'
+      'set lat 0'
+      'set t 1 'Nmonth
    endif
    say result
 
@@ -419,14 +428,15 @@ iexp=1
            'd fcst'region''iexp
          else
             if(iexp=1)
+             'set stat on'
              'd fcst'region''iexp
               range=sublin(result,9)
               cmin=subwrd(range,5)
               cmax=subwrd(range,6)
-            else
-              'set vrange 'cmin' 'cmax
-              'd fcst'region''iexp
             endif
+            'set ccolor 'iexp1
+            'set vrange 'cmin' 'cmax
+            'd fcst'region''iexp
          endif
          iexp=iexp+1
      endwhile
