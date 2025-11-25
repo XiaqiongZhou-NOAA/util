@@ -36,7 +36,6 @@ cat >job_${VAR}_${EXP}.sh <<EOF
 #SBATCH -t 6:30:00
 #SBATCH -A fv3-cpu
 #SBATCH -q batch
-#SBATCH --partition=service
 #SBATCH -J fv3
 #SBATCH -o ./log.$VAR.$EXP
 #SBATCH -e ./log.$VAR.$EXP
@@ -89,6 +88,7 @@ mkdir tmp_\$exp.\$CDATE.\${var}
            export INTV=\$INTV_OCN
            echo INTV=\$INTV
            datadir=\$DATAIN/\$exp/sfs.\$pdy/\${cyc}/mem\$mem/model/ocean/history/
+           filename_pre=sfs.t\${cyc}z.\${INTV}hr_avg.
            filename_pre=sfs.ocean.t\${cyc}z.\${INTV}hr_avg.
      esac
     for ((ifhr=0; ifhr<=FHMAX; ifhr+=INTV)); do

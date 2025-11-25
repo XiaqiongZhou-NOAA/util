@@ -41,7 +41,7 @@ EOF
 fi
 cat <<EOF >> job_${VAR}_${EXP}.sh
 
-module load wgrib2
+module load wgrib2/3.1.3_ncep
 module load cdo
 set -x
 export VAR=$VAR
@@ -196,6 +196,7 @@ for CDATE in \$CDATELIST ;do
              fhr=\$(printf %03i \$ifhr)
              fi
 	     filename=sfs.t00z.master.grb2f\$fhr
+	     filename=sfs.t00z.master.f\$fhr.grib2
 
              wgrib2 \$datadir/\$filename -match "\${var}" -grib \$grb2file.tmp
              if [[ \${PRESLEV} == "YES" ]]; then
