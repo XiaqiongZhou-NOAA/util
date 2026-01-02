@@ -7,7 +7,7 @@ Required modules: WGRIB2, CDO and GrADS.   \
          
 **4) atm_plot_zonal_mean.sh**: to plot 3D variable zonal mean compared with ERA5 
 
-**5) climate_leadmon**: Re-org fcst data based on forecast lead months and calcualte climate and anom 
+**5) climate_leadmon_ens_obs.sh**: Re-org fcst and obs data based on ensemble forecast lead months and calcualte climate and anom 
 
 (Figure examples: https://www.emc.ncep.noaa.gov/gc_wmb/xzhou//SFS/c192sfs_zm/)
 
