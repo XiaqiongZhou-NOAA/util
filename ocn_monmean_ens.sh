@@ -97,8 +97,13 @@ mkdir tmp_\$exp.\$CDATE.\${var}
              if [ \$ifhr -lt 100 ];then
              fhr=\$(printf %03i \$ifhr)
              fi
-	     filename=\${filename_pre}f\${fhr}.nc
-             cdo select,name=\$var \$datadir/\$filename tmp_\$exp.\$CDATE.\${var}/\$exp.\$CDATE.\${var}.f\${fhr}.\$mem.nc
+
+		 filename=\${filename_pre}f\${fhr}.nc
+		 if [ ! -f "\$datadir/\$filename" ]; then
+                  echo "ERROR: File not found: \$datadir/\$filename" >&2
+                 exit 1
+          fi
+     	  cdo select,name=\$var \$datadir/\$filename tmp_\$exp.\$CDATE.\${var}/\$exp.\$CDATE.\${var}.f\${fhr}.\$mem.nc
 
     done
           
