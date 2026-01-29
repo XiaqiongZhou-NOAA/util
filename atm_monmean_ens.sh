@@ -198,9 +198,13 @@ for CDATE in \$CDATELIST ;do
 	     filename=sfs.t00z.master.grb2f\$fhr
 	     filename=sfs.t00z.master.f\$fhr.grib2
 
+             if [ ! -f "\$datadir/\$filename" ]; then
+                  echo "ERROR: File not found: \$datadir/\$filename" >&2
+                 exit 1
+             fi
+
              wgrib2 \$datadir/\$filename -match "\${var}" -grib \$grb2file.tmp
              if [[ \${PRESLEV} == "YES" ]]; then
-
               wgrib2  \$grb2file.tmp -s |grep "mb" | wgrib2 -i  \$grb2file.tmp  -grib \$grb2file.tmp1
              sort_by_pressure_mb  \$grb2file.tmp1 \$grb2file.tmp2 \$exp.\$CDATE.\${VAR}.\$fhr.mem\$mem
              cat \$grb2file.tmp2>>\$grb2file
