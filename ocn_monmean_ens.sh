@@ -91,7 +91,7 @@ mkdir tmp_\$exp.\$CDATE.\${var}
            filename_pre=sfs.t\${cyc}z.\${INTV}hr_avg.
            filename_pre=sfs.ocean.t\${cyc}z.\${INTV}hr_avg.
      esac
-    for ((ifhr=0; ifhr<=FHMAX; ifhr+=INTV)); do
+    for ((ifhr=INTV; ifhr<=FHMAX; ifhr+=INTV)); do
 
             ((fhr=ifhr))
              if [ \$ifhr -lt 100 ];then
