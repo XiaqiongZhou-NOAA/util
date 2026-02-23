@@ -79,25 +79,26 @@ compute_climate_and_anom() {
     local input=$1
     local prefix=$2
 
-    cdo ymonmean "$input" "${prefix}.climate.nc"
-    cdo ymonsub  "$input" "${prefix}.climate.nc" \
+    cdo ymonmean "$input" "${prefix}.nc"
+    cdo ymonsub  "$input" "${prefix}.nc" \
                  "${prefix}.anom.nc"
 }
 
 compute_seasonal_mean() {
     local prefix=$1   # exp or ANA
     local icdate=$2
-    local var=$3
-    local range=$4
+    local CASE_NUM=$3
+    local var=$4
+    local range=$5
 
     IFS='-' read start end <<< "$range"
 
     files=()
     for m in $(seq $start $end); do
-        files+=("${prefix}.${icdate}.${var}.leadmon${m}.nc")
+        files+=("${prefix}.${icdate}.${CASE_NUM}yr.${var}.leadmon${m}.nc")
     done
 
-    outfile="${prefix}.${icdate}.${var}.leadmon${range}.nc"
+    outfile="${prefix}.${icdate}.${CASE_NUM}yr.${var}.leadmon${range}.nc"
 
     for f in "${files[@]}"; do
         [[ -f "$f" ]] || { echo "Missing $f"; return; }
@@ -204,13 +205,18 @@ for istep in $(seq 1 $Nmonth); do
     done
 
     # Merge forecast
+    output="$exp.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
     cdo mergetime "$exp".*.$var.$icdate.leadmon${istep}.nc \
-        "$exp.$icdate.$var.leadmon${istep}.nc"
+        "$output"
+    cdo setreftime,1980-01-01,00:00 -settunits,years $output $DATAOUT/$var/$output
+
 
     # Merge ANA
     if [[ "$VARANA" != "none" && $iexp -eq 1 ]]; then
+        output="ANA.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
         cdo mergetime ANA.*.$var.$icdate.leadmon${istep}.nc \
-            ANA.$icdate.$var.leadmon${istep}.nc
+            $output
+        cdo setreftime,1980-01-01,00:00 -settunits,years $output $DATAOUT/$var/$output
     fi
 
 done
@@ -221,13 +227,13 @@ done
 
 for istep in $(seq 1 $Nmonth); do
 
-    input="$exp.$icdate.$var.leadmon${istep}.nc"
-    prefix="$DATAOUT/$var/$exp.$icdate.${CASE_NUM}yr.$var.leadmon${istep}"
+    input="$DATAOUT/$var/$exp.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
+    prefix="$DATAOUT/$var/$exp.$icdate.climate.${CASE_NUM}yr.$var.leadmon${istep}"
     compute_climate_and_anom "$input" "$prefix"
 
     if [[ "$VARANA" != "none" && $iexp -eq 1 ]]; then
-        input="ANA.$icdate.$var.leadmon${istep}.nc"
-        prefix="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.leadmon${istep}"
+        input="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
+        prefix="$DATAOUT/$var/ANA.$icdate.climate.${CASE_NUM}yr.$var.leadmon${istep}"
         compute_climate_and_anom "$input" "$prefix"
     fi
 
@@ -238,10 +244,10 @@ done
 # ----------------------------------------------------------
 
 for range in 2-4 5-7 8-10 11-12; do
-    compute_seasonal_mean "$exp" "$icdate" "$var" "$range"
+    compute_seasonal_mean "$DATAOUT/$var/$exp" "$icdate" "$CASE_NUM" "$var" "$range"
 
     if [[ "$VARANA" != "none" && $iexp -eq 1 ]]; then
-        compute_seasonal_mean "ANA" "$icdate" "$var" "$range"
+        compute_seasonal_mean "$DATAOUT/$var/ANA" "$icdate" "$CASE_NUM" "$var" "$range"
     fi
 done
 
