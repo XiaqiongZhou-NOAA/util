@@ -19,11 +19,12 @@
 set -x
 export OMP_NUM_THREADS=8
 module load cdo
-source config.diag.comp.t2m
+source config.diag.30yr.sst
 
 echo "WORKDIR = $WORKDIR"
 rm -rf "$WORKDIR"
 mkdir -p "$WORKDIR"
+export DO_CORR=YES
 
 # ==========================================================
 # Utility Functions
@@ -51,7 +52,7 @@ get_anafile() {
             echo "$ANADATADIR/$CERESFILENAME_SFC"
             ;;
         ERA5_3D)
-            echo "$ANADATADIR/ERA5_3D/${varana}.1994-2025.mon.1p0.nc"
+            echo "$ANADATADIR/ERA5_3D/${varana}"
             ;;
         *)
             echo "$ANADATADIR/$ERAFILENAME"
@@ -145,11 +146,11 @@ for i in "${!VARLIST[@]}"; do
     echo "======================================="
 
     # --- Determine ANA file ---
-    if [[ "$VARANA" != "none" ]]; then
+#!    if [[ "$VARANA" != "none" ]]; then
         anafile=$(get_anafile "$VARANA_TYPE" "$VARANA")
-        file_exists_or_exit "$anafile"
-        echo "Using ANA file: $anafile"
-    fi
+#        file_exists_or_exit "$anafile"
+#        echo "Using ANA file: $anafile"
+#    fi
 
     tmpdir="$WORKDIR/tmp.$var.$exp"
     rm -rf "$tmpdir"
@@ -171,7 +172,7 @@ for istep in $(seq 1 $Nmonth); do
         icdate=${CDATE:4:4}
 
         if [[ $NENS -gt 0 ]]; then
-            filein="$exp.$CDATE.$var.mem0-$NENS.1p0.monthly.nc"
+            filein="$exp.$CDATE.$var.ensmean0-$NENS.1p0.monthly.nc"
         else
             filein="$exp.$CDATE.$var.mem0.1p0.monthly.nc"
         fi
@@ -186,6 +187,8 @@ for istep in $(seq 1 $Nmonth); do
         mv "$outfile.tmp" "$outfile"
 
         # ----- Corresponding ANA -----
+        ANAFILE="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
+	if [[ ! -f "$ANAFILE" ]]; then 
         if [[ "$VARANA" != "none" && $iexp -eq 1 ]]; then
 
             ((istep1=istep-1))
@@ -193,13 +196,15 @@ for istep in $(seq 1 $Nmonth); do
 
             newyear=${newdate:0:4}
             newmonth=${newdate:4:2}
+#                "${anafile}_${newmonth}.nc" \
 
             cdo -L -P 8 \
                 selmon,$newmonth \
                 -selyear,$newyear \
                 -selvar,$VARANA \
-                "$anafile" \
+                "${anafile}" \
                 "ANA.$CDATE.$var.$icdate.leadmon${istep}.nc"
+        fi
         fi
 
     done
@@ -212,11 +217,14 @@ for istep in $(seq 1 $Nmonth); do
 
 
     # Merge ANA
-    if [[ "$VARANA" != "none" && $iexp -eq 1 ]]; then
+    ANAFILE="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
+    if [[ ! -f "$ANAFILE" ]]; then 
+      if [[ "$VARANA" != "none" && $iexp -eq 1 ]]; then
         output="ANA.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
         cdo mergetime ANA.*.$var.$icdate.leadmon${istep}.nc \
             $output
         cdo setreftime,1980-01-01,00:00 -settunits,years $output $DATAOUT/$var/$output
+      fi
     fi
 
 done
@@ -236,6 +244,13 @@ for istep in $(seq 1 $Nmonth); do
         prefix="$DATAOUT/$var/ANA.$icdate.climate.${CASE_NUM}yr.$var.leadmon${istep}"
         compute_climate_and_anom "$input" "$prefix"
     fi
+    if [[ "$VARANA" != "none" && "$DO_CORR" == "YES" ]]; then
+            mkdir -p $DATAOUTPUT/$var/corr
+            inputf="$DATAOUT/$var/$exp.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
+            inputa="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
+            output="$DATAOUT/$var/corr/$exp.corr.$icdate.${CASE_NUM}yr.leadmon${istep}.nc"
+	    cdo -timcor $inputa $inputf $output
+   fi
 
 done
 
@@ -248,6 +263,12 @@ for range in 2-4 5-7 8-10 11-12; do
 
     if [[ "$VARANA" != "none" && $iexp -eq 1 ]]; then
         compute_seasonal_mean "$DATAOUT/$var/ANA" "$icdate" "$CASE_NUM" "$var" "$range"
+    fi
+    if [[ "$VARANA" != "none" && "$DO_CORR" == "YES" ]]; then
+            inputf="$DATAOUT/$var/$exp.$icdate.${CASE_NUM}yr.$var.leadmon${range}.nc"
+            inputa="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.leadmon${range}.nc"
+            output="$DATAOUT/$var/corr/$exp.corr.$icdate.${CASE_NUM}yr.leadmon${range}.nc"
+	    cdo -L -timcor $inputa $inputf $output
     fi
 done
 
