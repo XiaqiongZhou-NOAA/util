@@ -55,7 +55,7 @@ export DATAOUT=$DATAOUT
 export WORKDIR=$WORKDIR
 export INTERPFLAG=$INTERPFLAG_ATM
 export NMEM=$NENS
-export GET_ENSMEAN=$GET_ENSMEAN
+export GET_ENSSTAT=$GET_ENSSTAT
 
 mkdir -p \$DATAOUT/\$VAR
 
@@ -105,43 +105,43 @@ case "$VAR" in
         var="(UGRD|VGRD)"
         ;;
     T2M)
-        var="TMP:2 m above ground"
+        var=":TMP:2 m above ground:"
         ;;
     TS)
         var=":TMP:surface:"
         ;;
     TMAX2M)
-        var="TMAX:2 m above ground"
+        var=":TMAX:2 m above ground"
         ;;
     TMIN2M)
-        var="TMIN:2 m above ground"
+        var=":TMIN:2 m above ground"
         ;;
     T850)
-        var="TMP:850 mb"
+        var=":TMP:850 mb"
         ;;
     T200)
-        var="TMP:200 mb"
+        var=":TMP:200 mb"
         ;;
     T10)
-        var="TMP:10 mb"
+        var=":TMP:10 mb"
         ;;
     RH200)
-        var="RH:200 mb"
+        var=":RH:200 mb"
         ;;
     RH850)
-        var="RH:850 mb"
+        var=":RH:850 mb"
         ;;
     U200)
-	var="(UGRD:200 mb|VGRD:200 mb)"
+	var="(:UGRD:200 mb|:VGRD:200 mb)"
         ;;
     U850)
-	var="(UGRD:850 mb|VGRD:850 mb)"
+	var="(:UGRD:850 mb|:VGRD:850 mb)"
         ;;
     U10M)
-	var="(UGRD:10 m above ground|VGRD:10 m above ground)"
+	var="(:UGRD:10 m above ground|:VGRD:10 m above ground)"
         ;;
     V10M)
-	var="(UGRD:10 m above ground|VGRD:10 m above ground)"
+	var="(:UGRD:10 m above ground|:VGRD:10 m above ground)"
         ;;
     WIND10M)
         var="WIND:10 m above ground"
@@ -185,7 +185,7 @@ for CDATE in \$CDATELIST ;do
     output_prefix=\$exp.\$CDATE.\${VAR}.mem\$m
     grb2file=\$output_prefix.grb2
  
-    datadir=\$DATAIN/\$exp/\sfs.\$pdy/\00/mem\$mem/model/atmos/master/
+    datadir=\$DATAIN/\$exp/sfs.\$pdy/00/mem\$mem/model/atmos/master/
 #datadir=\$DATAIN/\$exp/\$CDATE/atmos/mem000/master/
     rm -rf \$DATAOUT/\$VAR/\$output_prefix.1p0.grb2
     rm -rf \$grb2file
@@ -197,14 +197,13 @@ for CDATE in \$CDATELIST ;do
              fi
 	     filename=sfs.t00z.master.grb2f\$fhr
 	     filename=sfs.t00z.master.f\$fhr.grib2
-
              if [ ! -f "\$datadir/\$filename" ]; then
                   echo "ERROR: File not found: \$datadir/\$filename" >&2
                  exit 1
              fi
-
              wgrib2 \$datadir/\$filename -match "\${var}" -grib \$grb2file.tmp
              if [[ \${PRESLEV} == "YES" ]]; then
+
               wgrib2  \$grb2file.tmp -s |grep "mb" | wgrib2 -i  \$grb2file.tmp  -grib \$grb2file.tmp1
              sort_by_pressure_mb  \$grb2file.tmp1 \$grb2file.tmp2 \$exp.\$CDATE.\${VAR}.\$fhr.mem\$mem
              cat \$grb2file.tmp2>>\$grb2file
@@ -233,8 +232,12 @@ for CDATE in \$CDATELIST ;do
       echo "mem\$mem"
   done
   if [ \$GET_ENSSTAT == "YES" -a \$NMEM -gt 0 ]; then
-     cdo ensmean \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.mem[0-\$NMEM].1p0.monthly.nc \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensmean0-\$NMEM.1p0.monthly.nc
-     cdo ensstd \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.mem[0-\$NMEM].1p0.monthly.nc \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensstd0-\$NMEM.1p0.monthly.nc
+
+          files=\$(printf "\$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.mem%d.1p0.monthly.nc " \$(seq 0 \$NENS))
+
+          cdo ensmean \$files \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensmean0-\${NENS}.1p0.monthly.nc
+          cdo ensstd \$files \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensstd0-\${NENS}.1p0.monthly.nc
+
   fi
      
 echo \$CDATE

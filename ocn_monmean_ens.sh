@@ -8,6 +8,7 @@ cd $WORKDIR
 MACHINE=$(echo "$machine" | tr  '[:lower:]' '[:upper:]')
 
 for EXP in $EXPLIST;do
+	echo 
   for i in "${!VARLIST_NC[@]}"; do
     VAR=${VARLIST_NC[$i]}
 #    VAR=$(echo "$VAR" | tr  '[:lower:]' '[:upper:]')
@@ -88,8 +89,8 @@ mkdir tmp_\$exp.\$CDATE.\${var}
            export INTV=\$INTV_OCN
            echo INTV=\$INTV
            datadir=\$DATAIN/\$exp/sfs.\$pdy/\${cyc}/mem\$mem/model/ocean/history/
-           filename_pre=sfs.t\${cyc}z.\${INTV}hr_avg.
            filename_pre=sfs.ocean.t\${cyc}z.\${INTV}hr_avg.
+           filename_pre=sfs.t\${cyc}z.\${INTV}hr_avg.
      esac
     for ((ifhr=INTV; ifhr<=FHMAX; ifhr+=INTV)); do
 
@@ -97,13 +98,14 @@ mkdir tmp_\$exp.\$CDATE.\${var}
              if [ \$ifhr -lt 100 ];then
              fhr=\$(printf %03i \$ifhr)
              fi
+	     filename=\${filename_pre}f\${fhr}.nc
 
-		 filename=\${filename_pre}f\${fhr}.nc
-		 if [ ! -f "\$datadir/\$filename" ]; then
+             if [ ! -f "\$datadir/\$filename" ]; then
                   echo "ERROR: File not found: \$datadir/\$filename" >&2
                  exit 1
-          fi
-     	  cdo select,name=\$var \$datadir/\$filename tmp_\$exp.\$CDATE.\${var}/\$exp.\$CDATE.\${var}.f\${fhr}.\$mem.nc
+             fi
+
+             cdo select,name=\$var \$datadir/\$filename tmp_\$exp.\$CDATE.\${var}/\$exp.\$CDATE.\${var}.f\${fhr}.\$mem.nc
 
     done
           
@@ -112,8 +114,11 @@ mkdir tmp_\$exp.\$CDATE.\${var}
           cdo remapbil,r360x181 \$output_prefix.monthly.nc \$DATAOUT\/\$var/\$output_prefix.1p0.monthly.nc
  done
   if [ \$GET_ENSSTAT == "YES" -a \$NMEM -gt 0 ]; then
-     cdo ensmean \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.mem[0-\$NMEM].1p0.monthly.nc \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensmean0-\$NMEM.1p0.monthly.nc
-     cdo ensstd \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.mem[0-\$NMEM].1p0.monthly.nc \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensstd0-\$NMEM.1p0.monthly.nc
+	  
+	  files=\$(printf "\$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.mem%d.1p0.monthly.nc " \$(seq 0 \$NENS))
+
+          cdo ensmean \$files \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensmean0-\${NENS}.1p0.monthly.nc
+          cdo ensstd \$files \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensstd0-\${NENS}.1p0.monthly.nc
   fi
 
 

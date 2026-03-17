@@ -7,8 +7,8 @@
 #SBATCH -A fv3-cpu
 #SBATCH -q batch
 #SBATCH -J fv3
-#SBATCH -o ./log.ocn
-#SBATCH -e ./log.ocn
+#SBATCH -o ./log.ocn1
+#SBATCH -e ./log.ocn1
 
 
 set -x
@@ -20,10 +20,10 @@ module load wgrib2
 # configuration
 #######################################
 
-DATAIN=/scratch3/NCEPDEV/global/Yangxing.Zheng/
-exp=SFS_NRT_C192mx025_20260301
 DATAIN=/scratch4/NCEPDEV/stmp/Neil.Barton/RUNS/COMROOT/
 exp=SFSBETA1.1_GFSv17ICs
+DATAIN=/scratch3/NCEPDEV/global/Yangxing.Zheng/
+exp=SFS_NRT_C192mx025_20260301
 
 DATAIN=$DATAIN/$exp
 DATAOUT=/scratch4/NCEPDEV/ensemble/$USER/util/sfs_diag/data
@@ -33,6 +33,7 @@ NENS=30
 CDATE=2026030100
 
 pdy=${CDATE:0:8}
+VARLIST="SST"
 VARLIST="SSH SST speed MLD_003 MLD_0125 SSU SSV,ePBL latent sensible SW LW taux tauy temp so uo vo"
 
 #######################################
@@ -99,22 +100,21 @@ echo "saved $outfile"
 
 #rm -rf $tmpdir
 
-done
+done #loop member
 
 #######################################
 # ensemble statistics
 #######################################
-
 if [[ "$GET_ENSSTAT" == "YES" ]]; then
 
 rm -rf $DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensmean0-${NENS}.1p0.monthly.nc
 rm -rf $DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensstd0-${NENS}.1p0.monthly.nc
-cdo ensmean $DATAOUT/$VAR/$exp.$CDATE.${VAR}.mem[0-${NENS}].1p0.monthly.nc \
+cdo ensmean $(printf "$DATAOUT/$VAR/$exp.$CDATE.${VAR}.mem%d.1p0.monthly.nc " $(seq 0 $NENS)) \
 $DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensmean0-${NENS}.1p0.monthly.nc
-
-cdo ensstd $DATAOUT/$VAR/$exp.$CDATE.${VAR}.mem[0-${NENS}].1p0.monthly.nc \
+cdo ensstd $(printf "$DATAOUT/$VAR/$exp.$CDATE.${VAR}.mem%d.1p0.monthly.nc " $(seq 0 $NENS)) \
 $DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensstd0-${NENS}.1p0.monthly.nc
+
 
 fi
 
-done
+done #loop var

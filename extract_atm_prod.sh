@@ -7,8 +7,8 @@
 #SBATCH -A fv3-cpu
 #SBATCH -q batch
 #SBATCH -J fv3
-#SBATCH -o ./log1
-#SBATCH -e ./log1
+#SBATCH -o ./log2
+#SBATCH -e ./log2
 
 set -euo pipefail
 
@@ -177,11 +177,12 @@ if [ "$NENS" -gt 0 ]; then
 
 rm -rf $DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensmean0-${NENS}.1p0.monthly.nc
 rm -rf $DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensstd0-${NENS}.1p0.monthly.nc
-cdo ensmean $DATAOUT/$VAR/$exp.$CDATE.${VAR}.mem[0-${NENS}].1p0.monthly.nc \
-$DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensmean0-${NENS}.1p0.monthly.nc
 
-cdo ensstd $DATAOUT/$VAR/$exp.$CDATE.${VAR}.mem[0-${NENS}].1p0.monthly.nc \
+cdo ensmean $(printf "$DATAOUT/$VAR/$exp.$CDATE.${VAR}.mem%d.1p0.monthly.nc " $(seq 0 $NENS)) \
+$DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensmean0-${NENS}.1p0.monthly.nc
+cdo ensstd $(printf "$DATAOUT/$VAR/$exp.$CDATE.${VAR}.mem%d.1p0.monthly.nc " $(seq 0 $NENS)) \
 $DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensstd0-${NENS}.1p0.monthly.nc
+
 
 fi
 
