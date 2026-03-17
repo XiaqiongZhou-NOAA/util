@@ -88,7 +88,7 @@ export CERESFILENAME_SFC=CERES_EBAF_Ed4.2_Subset_200003-202407.nc
 export CERESFILENAME_CLD=CERES_CldTypHist-MON_GEO-MODIS_Ed4.1_Subse.nc
 export CERESFILENAME_CLD=CERES_SYN1deg-Month_Terra-Aqua-NOAA20_Ed4.2_Subset_200003-202505.nc
 # -- oisst
-export OISSTFILENAME=sst.1p0.monthly.1994_2024.nc
+export OISSTFILENAME=sst.1p0.monthly.1991_2025.nc
 
 
 #WCOSS2
