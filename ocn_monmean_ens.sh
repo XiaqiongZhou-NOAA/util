@@ -113,13 +113,35 @@ mkdir tmp_\$exp.\$CDATE.\${var}
           cdo monmean \$output_prefix.nc \$output_prefix.monthly.nc
           cdo remapbil,r360x181 \$output_prefix.monthly.nc \$DATAOUT\/\$var/\$output_prefix.1p0.monthly.nc
  done
-  if [ \$GET_ENSSTAT == "YES" -a \$NMEM -gt 0 ]; then
-	  
-	  files=\$(printf "\$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.mem%d.1p0.monthly.nc " \$(seq 0 \$NENS))
+if [ "\$GET_ENSSTAT" == "YES" -a "\$NMEM" -gt 0 ]; then
 
-          cdo ensmean \$files \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensmean0-\${NENS}.1p0.monthly.nc
-          cdo ensstd \$files \$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensstd0-\${NENS}.1p0.monthly.nc
-  fi
+    files=\$(printf "\$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.mem%d.1p0.monthly.nc " \$(seq 0 \$NENS))
+
+    all_exist=true
+    for f in \$files; do
+        if [ ! -f "\$f" ]; then
+            echo "Missing file: \$f"
+            all_exist=false
+            break
+        fi
+    done
+
+    if \$all_exist; then
+        ensmean_out="\$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensmean0-\${NENS}.1p0.monthly.nc"
+        ensstd_out="\$DATAOUT/\$VAR/\$exp.\$CDATE.\${VAR}.ensstd0-\${NENS}.1p0.monthly.nc"
+
+        # Remove old outputs if they exist
+        [ -f "\$ensmean_out" ] && rm -f "\$ensmean_out"
+        [ -f "\$ensstd_out" ] && rm -f "\$ensstd_out"
+
+        # Run calculations
+        cdo ensmean \$files "\$ensmean_out"
+        cdo ensstd  \$files "\$ensstd_out"
+    else
+        echo "Not all input files exist. Skipping ensmean/ensstd."
+    fi
+
+fi
 
 
       
