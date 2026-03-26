@@ -19,7 +19,7 @@
 set -x
 export OMP_NUM_THREADS=8
 module load cdo
-source config.diag.30yr.sst
+source config.diag
 
 echo "WORKDIR = $WORKDIR"
 rm -rf "$WORKDIR"
@@ -54,6 +54,13 @@ get_anafile() {
         ERA5_3D)
             echo "$ANADATADIR/ERA5_3D/${varana}"
             ;;
+       GHCN_CAMS)
+            echo "$ANADATADIR/$GHCNCAMSFILE"
+            ;;
+        CMAP)
+            echo "$ANADATADIR/$CMAPFILE"
+            ;;
+
         *)
             echo "$ANADATADIR/$ERAFILENAME"
             ;;
@@ -91,15 +98,16 @@ compute_seasonal_mean() {
     local CASE_NUM=$3
     local var=$4
     local range=$5
+    local NENS=$6
 
     IFS='-' read start end <<< "$range"
 
     files=()
     for m in $(seq $start $end); do
-        files+=("${prefix}.${icdate}.${CASE_NUM}yr.${var}.leadmon${m}.nc")
+        files+=("${prefix}.${icdate}.${CASE_NUM}yr.${var}.nmem$NENS.leadmon${m}.nc")
     done
 
-    outfile="${prefix}.${icdate}.${CASE_NUM}yr.${var}.leadmon${range}.nc"
+    outfile="${prefix}.${icdate}.${CASE_NUM}yr.${var}.nmem$NENS.leadmon${range}.nc"
 
     for f in "${files[@]}"; do
         [[ -f "$f" ]] || { echo "Missing $f"; return; }
@@ -210,17 +218,17 @@ for istep in $(seq 1 $Nmonth); do
     done
 
     # Merge forecast
-    output="$exp.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
+    output="$exp.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
     cdo mergetime "$exp".*.$var.$icdate.leadmon${istep}.nc \
         "$output"
     cdo setreftime,1980-01-01,00:00 -settunits,years $output $DATAOUT/$var/$output
 
 
     # Merge ANA
-    ANAFILE="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
+    ANAFILE="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
     if [[ ! -f "$ANAFILE" ]]; then 
       if [[ "$VARANA" != "none" && $iexp -eq 1 ]]; then
-        output="ANA.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
+        output="ANA.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
         cdo mergetime ANA.*.$var.$icdate.leadmon${istep}.nc \
             $output
         cdo setreftime,1980-01-01,00:00 -settunits,years $output $DATAOUT/$var/$output
@@ -235,20 +243,20 @@ done
 
 for istep in $(seq 1 $Nmonth); do
 
-    input="$DATAOUT/$var/$exp.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
-    prefix="$DATAOUT/$var/$exp.$icdate.climate.${CASE_NUM}yr.$var.leadmon${istep}"
+    input="$DATAOUT/$var/$exp.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
+    prefix="$DATAOUT/$var/$exp.$icdate.climate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}"
     compute_climate_and_anom "$input" "$prefix"
 
     if [[ "$VARANA" != "none" && $iexp -eq 1 ]]; then
-        input="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
-        prefix="$DATAOUT/$var/ANA.$icdate.climate.${CASE_NUM}yr.$var.leadmon${istep}"
+        input="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
+        prefix="$DATAOUT/$var/ANA.$icdate.climate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}"
         compute_climate_and_anom "$input" "$prefix"
     fi
     if [[ "$VARANA" != "none" && "$DO_CORR" == "YES" ]]; then
             mkdir -p $DATAOUTPUT/$var/corr
-            inputf="$DATAOUT/$var/$exp.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
-            inputa="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
-            output="$DATAOUT/$var/corr/$exp.corr.$icdate.${CASE_NUM}yr.leadmon${istep}.nc"
+            inputf="$DATAOUT/$var/$exp.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
+            inputa="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
+            output="$DATAOUT/$var/corr/$exp.corr.$icdate.${CASE_NUM}yr.nmem$NENS.leadmon${istep}.nc"
 	    cdo -timcor $inputa $inputf $output
    fi
 
@@ -259,15 +267,15 @@ done
 # ----------------------------------------------------------
 
 for range in 2-4 5-7 8-10 11-12; do
-    compute_seasonal_mean "$DATAOUT/$var/$exp" "$icdate" "$CASE_NUM" "$var" "$range"
+    compute_seasonal_mean "$DATAOUT/$var/$exp" "$icdate" "$CASE_NUM" "$var" "$range" "$NENS"
 
     if [[ "$VARANA" != "none" && $iexp -eq 1 ]]; then
-        compute_seasonal_mean "$DATAOUT/$var/ANA" "$icdate" "$CASE_NUM" "$var" "$range"
+        compute_seasonal_mean "$DATAOUT/$var/ANA" "$icdate" "$CASE_NUM" "$var" "$range" "$NENS"
     fi
     if [[ "$VARANA" != "none" && "$DO_CORR" == "YES" ]]; then
-            inputf="$DATAOUT/$var/$exp.$icdate.${CASE_NUM}yr.$var.leadmon${range}.nc"
-            inputa="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.leadmon${range}.nc"
-            output="$DATAOUT/$var/corr/$exp.corr.$icdate.${CASE_NUM}yr.leadmon${range}.nc"
+            inputf="$DATAOUT/$var/$exp.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${range}.nc"
+            inputa="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${range}.nc"
+            output="$DATAOUT/$var/corr/$exp.corr.$icdate.${CASE_NUM}yr.nmem$NENS.leadmon${range}.nc"
 	    cdo -L -timcor $inputa $inputf $output
     fi
 done

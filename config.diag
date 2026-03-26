@@ -16,6 +16,11 @@ VARLIST_OBS=("ini_albedo_mon*100"
              "var228*1000/4" "none" "none" "tclw" "tciw" "none"  "none"
              "cldarea_low_mon" "cldarea_mid_low" "cldarea_high_mo" "cldarea_total_m"
              "t2m" "u10" "v10" "none" "none" "none" "none" "si10" "none")
+VARLIST_OBS_FULLNAME=("ini_albedo_mon" 
+             "adj_sw_dn_all_s" "adj_lw_dn_all_s" "adj_sw_up_all_s" "adj_atmos_lw_up" "adj_sw_up_all_t" "adj_lw_up_all_t" "adj_sw_dw_all_t"
+             "var228" "none" "none" "tclw" "tciw" "none"  "none"
+             "cldarea_low_mon" "cldarea_mid_low" "cldarea_high_mo" "cldarea_total_m"
+             "t2m" "u10" "v10" "none" "none" "none" "none" "si10" "none")
 
 VARLIST_OBS_TYPE=("ceres_cld" 
                   "ceres" "ceres" "ceres" "ceres" "ceres" "ceres" "ceres" 
@@ -38,6 +43,10 @@ export INTERPFLAG_OCN=YES
 #ocean netcdf
 VARLIST=("SST" "SW" "LW")
 VARLIST_OBS=("sst" "sfc_net_sw_all_" "sfc_net_lw_all_")
+VARLIST_OBS_FULLNAME=("sst" "sfc_net_sw_all_" "sfc_net_lw_all_")
+VARLIST_OBS_TYPE=("oisst" "ceres_sfc" "ceres_sfc")
+VARLIST=("SST")
+VARLIST_OBS=("sst" "sfc_net_sw_all_" "sfc_net_lw_all_")
 VARLIST_OBS_TYPE=("oisst" "ceres_sfc" "ceres_sfc")
 
 #atmos netcdf
@@ -54,11 +63,11 @@ export INTV_ATM=6
 
 #export CDATELIST="1994110100 1995110100 1996110100 1997110100 1998110100 1999110100 2000110100 2001110100 2002110100 2003110100 2004110100 2005110100 2006110100 2007110100 2008110100 2009110100 2010110100 2011110100 2012110100 2013110100 2014110100 2015110100 2016110100 2017110100 2018110100 2019110100 2020110100 2021110100 2022110100 2023110100"
 #export CDATELIST="1994050100 1995050100 1996050100 1997050100 1998050100 1999050100 2000050100 2001050100 2002050100 2003050100 2004050100 2005050100 2006050100 2007050100 2008050100 2009050100 2010050100 2011050100 2012050100 2013050100 2014050100 2015050100 2016050100 2017050100 2018050100 2019050100 2020050100 2021050100 2022050100 2023050100"
-export CDATELIST="2015110100 1994050100"
-export EXPLIST="sfs_c96 sfspdc_c96"
+export CDATELIST="1994050100 1995050100 1996050100 1997050100 1998050100 1999050100 2000050100 2001050100 2002050100 2003050100 "
+export EXPLIST="cfs"
 
 # For plotting 
-export Nmonth=12    # No. of fcst lead month
+export Nmonth=9    # No. of fcst lead month
 export GRADSDIR=./grads-scripts
 export LEADMON="1 2 3 4 5 6 7 8 9 10 11 12 2-4"
 export cmap_field=radar
@@ -89,6 +98,10 @@ export CERESFILENAME_CLD=CERES_CldTypHist-MON_GEO-MODIS_Ed4.1_Subse.nc
 export CERESFILENAME_CLD=CERES_SYN1deg-Month_Terra-Aqua-NOAA20_Ed4.2_Subset_200003-202505.nc
 # -- oisst
 export OISSTFILENAME=sst.1p0.monthly.1991_2025.nc
+#CMAP
+export CMAPFILENAME=cmap.mon.mean.1991-2025.1p0.nc
+#GHCN_CAMS
+export GHCNCAMS=ghcn_cams.mon.mean.1991-2025.1p0.nc
 
 
 #WCOSS2
