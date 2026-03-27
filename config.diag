@@ -83,6 +83,11 @@ export LEVS=1000   #hPa
 export LEVE=50     #hPa
 #when PRESLEV=YES,select pressure levels to plot
 export LEVLISTS="900 850 600"
+# define plotting domain
+export lats=-90
+export late=90
+export lons=0
+export lone=360
 
 # File name of obs and analysis
 # 
