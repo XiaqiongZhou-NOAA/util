@@ -19,7 +19,7 @@
 set -x
 export OMP_NUM_THREADS=8
 module load cdo
-source config.diag
+source config.vrfy
 
 echo "WORKDIR = $WORKDIR"
 rm -rf "$WORKDIR"
@@ -55,10 +55,10 @@ get_anafile() {
             echo "$ANADATADIR/ERA5_3D/${varana}"
             ;;
        GHCN_CAMS)
-            echo "$ANADATADIR/$GHCNCAMSFILE"
+            echo "$ANADATADIR/$GHCNCAMSFILENAME"
             ;;
         CMAP)
-            echo "$ANADATADIR/$CMAPFILE"
+            echo "$ANADATADIR/$CMAPFILENAME"
             ;;
 
         *)
