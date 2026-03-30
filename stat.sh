@@ -253,7 +253,7 @@ for istep in $(seq 1 $Nmonth); do
         compute_climate_and_anom "$input" "$prefix"
     fi
     if [[ "$VARANA" != "none" && "$DO_CORR" == "YES" ]]; then
-            mkdir -p $DATAOUTPUT/$var/corr
+            mkdir -p $DATAOUT/$var/corr
             inputf="$DATAOUT/$var/$exp.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
             inputa="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
             output="$DATAOUT/$var/corr/$exp.corr.$icdate.${CASE_NUM}yr.nmem$NENS.leadmon${istep}.nc"

@@ -106,7 +106,7 @@ export OISSTFILENAME=sst.1p0.monthly.1991_2025.nc
 #CMAP
 export CMAPFILENAME=cmap.mon.mean.1991-2025.1p0.nc
 #GHCN_CAMS
-export GHCNCAMSNAME=ghcn_cams.mon.mean.1991-2025.1p0.nc
+export GHCNCAMSFILENAME=ghcn_cams.mon.mean.1991-2025.1p0.nc
 
 
 #WCOSS2
