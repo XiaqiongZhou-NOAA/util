@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -x
 
 module load cdo
 module load wgrib2
@@ -92,6 +92,7 @@ for m in $(seq 0 $((NENS))); do
 member=$(printf "%03d" $m)
 
 tmpdir=./tmpdir.$CDATE.$exp/$VAR.$member
+rm -rf  $tmpdir
 mkdir -p $tmpdir
 
 #######################################
@@ -111,7 +112,7 @@ fi
 if [ ! -f "$file" ]; then
          echo "Missing file: $file "
          all_exist=false
-         stop
+         break
 	 
 else
 
@@ -148,7 +149,20 @@ fi
 
 if [ $INTERPFLAG == "YES"  ];then
 
- cdo remapbil,r360x181 $tmpdir/$outfile_name $outfile
+cat <<EOF > $tmpdir/grid.txt
+gridtype = lonlat
+xsize    = 360
+ysize    = 181
+xfirst   = 0
+xinc     = 1.
+yfirst   = -90
+yinc     = 1.0
+xname    = longitude
+yname    = latitude
+EOF
+
+rm -rf $outfile
+cdo remapbil,grid.txt $tmpdir/$outfile_name $outfile
 else
  mv $tmpdir/$outfile_name $outfile
 fi
