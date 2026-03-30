@@ -1,14 +1,4 @@
 #!/bin/bash
-#-----------------------------------------------------------
-# Invoke as: sbatch $script
-#-----------------------------------------------------------
-#SBATCH --ntasks=1 --nodes=1
-#SBATCH -t 6:30:00
-#SBATCH -A fv3-cpu
-#SBATCH -q batch
-#SBATCH -J fv3
-#SBATCH -o ./log2
-#SBATCH -e ./log2
 
 set -euo pipefail
 
@@ -22,16 +12,7 @@ module load wgrib2
 WORKDIR=$PWD
 cd $WORKDIR
 
-DATAIN=/scratch4/NCEPDEV/stmp/Neil.Barton/RUNS/COMROOT/
-exp=SFSBETA1.1_GFSv17ICs
-DATAIN=/scratch3/NCEPDEV/global/Yangxing.Zheng/
-exp=SFS_NRT_C192mx025_20260301
-DATAIN=$DATAIN/$exp
-DATAOUT=/scratch4/NCEPDEV/ensemble/$USER/util/sfs_diag/data
-
 INTERPFLAG=YES  
-NENS=30
-CDATE=2026030100
 
 pdy=${CDATE:0:8}
 
@@ -43,28 +24,30 @@ declare -A STREAM
 declare -A DAILY
 
 # acc monthly
-for v in APCP ACPCP NCPCP DLWRFSFC USWRFSFC ULWRFTOA; do
+#for v in APCP ACPCP NCPCP DLWRFSFC USWRFSFC ULWRFTOA; do
+for v in APCP; do
 STREAM[$v]="acc.monthly"
 DAILY[$v]="NO"
 done
 
 # inst monthly
-for v in T2M U10M V10M; do
+#for v in T2M U10M V10M; do
+for v in T2M; do
 STREAM[$v]="inst.monthly"
 DAILY[$v]="NO"
 done
 
 # acc daily
-for v in TCDC DSWRFSFC DSWRFTOA USWRFTOA ULWRFSFC; do
-STREAM[$v]="acc.daily"
-DAILY[$v]="YES"
-done
+#for v in TCDC DSWRFSFC DSWRFTOA USWRFTOA ULWRFSFC; do
+#STREAM[$v]="acc.daily"
+#DAILY[$v]="YES"
+#done
 
 # inst daily
-for v in PWAT CAPE; do
-STREAM[$v]="inst.daily"
-DAILY[$v]="YES"
-done
+#for v in PWAT CAPE; do
+#STREAM[$v]="inst.daily"
+#DAILY[$v]="YES"
+#done
 
 #######################################
 # pattern mapping
@@ -73,7 +56,7 @@ done
 pattern(){
 
 case $1 in
-T2M) echo "TMP:2 m above ground" ;;
+T2M) echo ":TMP:2 m above ground" ;;
 U10M) echo "UGRD:10 m above ground" ;;
 V10M) echo "VGRD:10 m above ground" ;;
 DLWRFSFC) echo "DLWRF:surface" ;;
@@ -125,13 +108,19 @@ else
 file=$DATAIN/sfs.$pdy/00/mem${member}/products/atmos/grib2/${stream}.mem${member}/${stream}.${pdy}00.${validyyyymm}.grib.t00z.grb2
 fi
 
-[[ -f $file ]] || continue
+if [ ! -f "$file" ]; then
+         echo "Missing file: $file "
+         all_exist=false
+         stop
+	 
+else
 
-pat=$(pattern $VAR)
+    pat=$(pattern $VAR)
 
-echo "reading $file ($VAR)"
+    echo "reading $file ($VAR)"
 
-wgrib2 $file -match "$pat" -netcdf $tmpdir/${VAR}.${validyyyymm}.nc
+    wgrib2 $file -match "$pat" -netcdf $tmpdir/${VAR}.${validyyyymm}.nc
+fi
 
 done
 
@@ -174,14 +163,33 @@ done
 #######################################
 
 if [ "$NENS" -gt 0 ]; then
+    files=$(printf "$DATAOUT/$VAR/$exp.$CDATE.${VAR}.mem%d.1p0.monthly.nc " $(seq 0 $NENS))
 
-rm -rf $DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensmean0-${NENS}.1p0.monthly.nc
-rm -rf $DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensstd0-${NENS}.1p0.monthly.nc
+    all_exist=true
+    for f in $files; do
+        if [ ! -f "$f" ]; then
+            echo "Missing file: $f"
+            all_exist=false
+            break
+        fi
+    done
 
-cdo ensmean $(printf "$DATAOUT/$VAR/$exp.$CDATE.${VAR}.mem%d.1p0.monthly.nc " $(seq 0 $NENS)) \
-$DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensmean0-${NENS}.1p0.monthly.nc
-cdo ensstd $(printf "$DATAOUT/$VAR/$exp.$CDATE.${VAR}.mem%d.1p0.monthly.nc " $(seq 0 $NENS)) \
-$DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensstd0-${NENS}.1p0.monthly.nc
+    if $all_exist; then
+        ensmean_out="$DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensmean0-${NENS}.1p0.monthly.nc"
+        ensstd_out="$DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensstd0-${NENS}.1p0.monthly.nc"
+
+        # Remove old outputs if they exist
+        [ -f "$ensmean_out" ] && rm -f "$ensmean_out"
+        [ -f "$ensstd_out" ] && rm -f "$ensstd_out"
+
+        # Run calculations
+        cdo ensmean $files "$ensmean_out"
+        cdo ensstd  $files "$ensstd_out"
+    else
+        echo "ERROR: Not all input files exist. Skipping ensmean/ensstd."
+    fi
+
+
 
 
 fi

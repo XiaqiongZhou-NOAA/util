@@ -1,14 +1,4 @@
 #!/bin/bash
-#-----------------------------------------------------------
-# Invoke as: sbatch $script
-#-----------------------------------------------------------
-#SBATCH --ntasks=1 --nodes=1
-#SBATCH -t 6:30:00
-#SBATCH -A fv3-cpu
-#SBATCH -q batch
-#SBATCH -J fv3
-#SBATCH -o ./log.ocn1
-#SBATCH -e ./log.ocn1
 
 
 set -x
@@ -20,21 +10,12 @@ module load wgrib2
 # configuration
 #######################################
 
-DATAIN=/scratch4/NCEPDEV/stmp/Neil.Barton/RUNS/COMROOT/
-exp=SFSBETA1.1_GFSv17ICs
-DATAIN=/scratch3/NCEPDEV/global/Yangxing.Zheng/
-exp=SFS_NRT_C192mx025_20260301
-
-DATAIN=$DATAIN/$exp
-DATAOUT=/scratch4/NCEPDEV/ensemble/$USER/util/sfs_diag/data
 
 GET_ENSSTAT=YES
-NENS=30
-CDATE=2026030100
 
 pdy=${CDATE:0:8}
-VARLIST="SST"
 VARLIST="SSH SST speed MLD_003 MLD_0125 SSU SSV,ePBL latent sensible SW LW taux tauy temp so uo vo"
+VARLIST="SST"
 
 #######################################
 # variable groups
@@ -107,12 +88,32 @@ done #loop member
 #######################################
 if [[ "$GET_ENSSTAT" == "YES" ]]; then
 
-rm -rf $DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensmean0-${NENS}.1p0.monthly.nc
-rm -rf $DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensstd0-${NENS}.1p0.monthly.nc
-cdo ensmean $(printf "$DATAOUT/$VAR/$exp.$CDATE.${VAR}.mem%d.1p0.monthly.nc " $(seq 0 $NENS)) \
-$DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensmean0-${NENS}.1p0.monthly.nc
-cdo ensstd $(printf "$DATAOUT/$VAR/$exp.$CDATE.${VAR}.mem%d.1p0.monthly.nc " $(seq 0 $NENS)) \
-$DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensstd0-${NENS}.1p0.monthly.nc
+    files=$(printf "$DATAOUT/$VAR/$exp.$CDATE.${VAR}.mem%d.1p0.monthly.nc " $(seq 0 $NENS))
+
+    all_exist=true
+    for f in $files; do
+        if [ ! -f "$f" ]; then
+            echo "Missing file: $f"
+            all_exist=false
+            break
+        fi
+    done
+
+    if $all_exist; then
+        ensmean_out="$DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensmean0-${NENS}.1p0.monthly.nc"
+        ensstd_out="$DATAOUT/$VAR/$exp.$CDATE.${VAR}.ensstd0-${NENS}.1p0.monthly.nc"
+
+        # Remove old outputs if they exist
+        [ -f "$ensmean_out" ] && rm -f "$ensmean_out"
+        [ -f "$ensstd_out" ] && rm -f "$ensstd_out"
+
+        # Run calculations
+        cdo ensmean $files "$ensmean_out"
+        cdo ensstd  $files "$ensstd_out"
+
+   else
+        echo "ERROR: Not all input files exist. Skipping ensmean/ensstd."
+    fi
 
 
 fi

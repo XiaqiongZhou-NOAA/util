@@ -7,8 +7,8 @@
 #SBATCH -A fv3-cpu
 #SBATCH -q batch
 #SBATCH -J fv3
-#SBATCH -o ./getcfs.log
-#SBATCH -e ./getcfs.log
+#SBATCH -o ./getcfs.log.0501
+#SBATCH -e ./getcfs.log.0501
 
 
 # Extract SST, T2M, and APCP separately from CFS forecast files
@@ -44,10 +44,10 @@ xname    = longitude
 yname    = latitude
 EOF
 
-MMDD=0501
-mmddhhlist="050100 050106 050112 050118 042618 042612 042606 042600 042100 042106 042112"
 MMDD=0301
 mmddhhlist="022500 022506 022512 022518 022000 022006 022012 022018 021500 021506 021512"
+MMDD=0501
+mmddhhlist="050100 050106 050112 050118 042618 042612 042606 042600 042100 042106 042112"
 NENS=$(echo $mmddhhlist | wc -w)
 (( NENS=NENS-1 ))
 
@@ -124,10 +124,12 @@ for VAR in $varlist; do
 
         # Remove old output if it exists
         ensmean_out="$outputdir/$VAR/$exp.$CDATE.$VAR.ensmean0-$NENS.1p0.monthly.nc"
+        ensstd_out="$outputdir/$VAR/$exp.$CDATE.$VAR.ensstd0-$NENS.1p0.monthly.nc"
         [ -f "$ensmean_out" ] && rm -f "$ensmean_out"
+        [ -f "$ensstd_out" ] && rm -f "$ensstd_out"
 
-	 for m in $(seq 0 $NENS); do
-             f="$outputdir/$VAR/$exp.$CDATE.$VAR.mem${m}.1p0.monthly.nc"
+	 files=$(printf "$outputdir/$VAR/$exp.$CDATE.$VAR.mem%d.1p0.monthly.nc $seq 0 $NENS))
+	 for f in $files; do
              if [ ! -f "$f" ]; then
                  echo "Missing file: $f"
                 all_exist=false
@@ -139,10 +141,10 @@ for VAR in $varlist; do
 
 
         # Run ensmean (safe since all files exist)
-        cdo ensmean $outputdir/$VAR/$exp.$CDATE.$VAR.mem*.1p0.monthly.nc \
-            "$ensmean_out"
+        cdo ensmean $files "$ensmean_out"
+        cdo ensstd $files "$ensstd_out"
     else
-        echo "Not all member files exist. Skipping ensmean."
+        echo "Warning: Not all member files exist. Skipping ensmean."
     fi
 
     done
