@@ -46,8 +46,8 @@ EOF
 
 NENS=10
 MM=04
-START_YEAR=2012
-END_YEAR=2012
+START_YEAR=1992
+END_YEAR=2024
 MMDD=${MM}01
 
 
@@ -85,7 +85,9 @@ for VAR in $varlist; do
     mkdir -p $outputdir/$VAR
     
     for ((YYYY=START_YEAR; YYYY<=END_YEAR; YYYY+=1)); do
-
+	mkdir $YYYY
+	cd $YYYY
+        cp -pr ../grid.txt .
         CDATE=${YYYY}${MMDD}00
         ICDATE=$(date -d "${CDATE:0:8}" +"%Y-%m-%d")
         
@@ -176,5 +178,6 @@ for VAR in $varlist; do
        else
            echo "Warning: Not all member files exist. Skipping ensmean."
        fi
+       cd ../
  done #year
 done #var
