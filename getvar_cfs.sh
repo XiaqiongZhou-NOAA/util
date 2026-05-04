@@ -12,7 +12,7 @@
 
 
 # Extract SST, T2M, and APCP separately from CFS forecast files
-set -x
+#set -x
 
 outputdir=/scratch4/NCEPDEV/ensemble/Xiaqiong.Zhou/util/sfs_diag/data1
 datadir=/scratch4/NCEPDEV/ensemble/Xiaqiong.Zhou/data/cfs/fcst/
@@ -44,23 +44,53 @@ xname    = longitude
 yname    = latitude
 EOF
 
-MMDD=0301
-mmddhhlist="022500 022506 022512 022518 022000 022006 022012 022018 021500 021506 021512"
-MMDD=0501
-mmddhhlist="050100 050106 050112 050118 042618 042612 042606 042600 042100 042106 042112"
-NENS=$(echo $mmddhhlist | wc -w)
-(( NENS=NENS-1 ))
+NENS=10
+MM=04
+START_YEAR=2012
+END_YEAR=2012
+MMDD=${MM}01
+
+
+declare -A mmdd_list=(
+  ["01"]="0101 1227 1222"
+  ["02"]="0131 0126 0121"
+  ["03"]="0225 0220 0215"
+  ["04"]="0401 0327 0322"
+  ["05"]="0501 0426 0421"
+  ["06"]="0531 0526 0521"
+  ["07"]="0630 0625 0620"
+  ["08"]="0730 0725 0720"
+  ["09"]="0829 0824 0819"
+  ["10"]="0928 0923 0918"
+  ["11"]="1028 1023 1018"
+  ["12"]="1127 1122 1117"
+)
+
+mmddlist="${mmdd_list[$MM]}"
+
+# get list of start time as ensemble member:mmddhhlist
+((nnn=$NENS+1))
+mmddhhlist=()
+for d in $mmddlist; do
+  for h in 18 12 06 00; do
+    mmddhhlist+=("${d}${h}")
+    [[ ${#mmddhhlist[@]} -ge $nnn ]] && break 2
+  done
+done
+
+echo  ${mmddhhlist[@]}
 
 for VAR in $varlist; do
     # Create variable-specific output directory if it doesn't exist
     mkdir -p $outputdir/$VAR
     
-    for YYYY in {1991..2024..1}; do
+    for ((YYYY=START_YEAR; YYYY<=END_YEAR; YYYY+=1)); do
+
         CDATE=${YYYY}${MMDD}00
         ICDATE=$(date -d "${CDATE:0:8}" +"%Y-%m-%d")
         
         member=0
-        for mmddhh in $mmddhhlist; do 
+        for mmddhh in ${mmddhhlist[@]}; do 
             ICCDATE=${YYYY}${mmddhh}
 
             for LEAD in $(seq 0 8); do
@@ -116,9 +146,9 @@ for VAR in $varlist; do
             cdo settaxis,$ICDATE,00:00:00,1month $VAR.merged.$member.nc \
                 $outputdir/$VAR/$exp.$CDATE.$VAR.mem$member.1p0.monthly.nc
             
-            rm $VAR.$member.*.nc $VAR.merged.$member.nc
+            #rm $VAR.$member.*.nc $VAR.merged.$member.nc
             (( member=member+1 ))
-        done
+        done  #member
 
         # Calculate Ensemble Mean for this specific variable
 
@@ -128,12 +158,12 @@ for VAR in $varlist; do
         [ -f "$ensmean_out" ] && rm -f "$ensmean_out"
         [ -f "$ensstd_out" ] && rm -f "$ensstd_out"
 
-	 files=$(printf "$outputdir/$VAR/$exp.$CDATE.$VAR.mem%d.1p0.monthly.nc $seq 0 $NENS))
+	 files=$(printf "$outputdir/$VAR/$exp.$CDATE.$VAR.mem%d.1p0.monthly.nc " $(seq 0 $NENS))
 	 for f in $files; do
              if [ ! -f "$f" ]; then
                  echo "Missing file: $f"
                 all_exist=false
-                stop
+                break
              fi
         done
 
@@ -143,9 +173,8 @@ for VAR in $varlist; do
         # Run ensmean (safe since all files exist)
         cdo ensmean $files "$ensmean_out"
         cdo ensstd $files "$ensstd_out"
-    else
-        echo "Warning: Not all member files exist. Skipping ensmean."
-    fi
-
-    done
-done
+       else
+           echo "Warning: Not all member files exist. Skipping ensmean."
+       fi
+ done #year
+done #var
