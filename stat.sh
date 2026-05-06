@@ -5,8 +5,8 @@
 #SBATCH -A fv3-cpu
 #SBATCH -q batch
 #SBATCH -J anome
-#SBATCH -o log1
-#SBATCH -e log1
+#SBATCH -o log6
+#SBATCH -e log6
 
 # ==========================================================
 # Climate Lead-Month Processing Script
@@ -19,7 +19,7 @@
 set -x
 export OMP_NUM_THREADS=8
 module load cdo
-source config.vrfy
+source config.diag
 
 echo "WORKDIR = $WORKDIR"
 rm -rf "$WORKDIR"
@@ -195,8 +195,6 @@ for istep in $(seq 1 $Nmonth); do
         mv "$outfile.tmp" "$outfile"
 
         # ----- Corresponding ANA -----
-        ANAFILE="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.leadmon${istep}.nc"
-	if [[ ! -f "$ANAFILE" ]]; then 
         if [[ "$VARANA" != "none" && $iexp -eq 1 ]]; then
 
             ((istep1=istep-1))
@@ -213,27 +211,25 @@ for istep in $(seq 1 $Nmonth); do
                 "${anafile}" \
                 "ANA.$CDATE.$var.$icdate.leadmon${istep}.nc"
         fi
-        fi
 
     done
 
     # Merge forecast
     output="$exp.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
-    cdo mergetime "$exp".*.$var.$icdate.leadmon${istep}.nc \
+    cdo  mergetime "$exp".*.$var.$icdate.leadmon${istep}.nc \
         "$output"
-    cdo setreftime,1980-01-01,00:00 -settunits,years $output $DATAOUT/$var/$output
+    cdo -O setreftime,1980-01-01,00:00 -settunits,years $output $DATAOUT/$var/$output
 
 
     # Merge ANA
-    ANAFILE="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
-    if [[ ! -f "$ANAFILE" ]]; then 
       if [[ "$VARANA" != "none" && $iexp -eq 1 ]]; then
+	
         output="ANA.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
-        cdo mergetime ANA.*.$var.$icdate.leadmon${istep}.nc \
+        ANAFILE="$DATAOUT/$var/$output"
+        cdo -O mergetime ANA.*.$var.$icdate.leadmon${istep}.nc \
             $output
-        cdo setreftime,1980-01-01,00:00 -settunits,years $output $DATAOUT/$var/$output
+        cdo -O -L setreftime,1980-01-01,00:00 -settunits,years $output $ANAFILE
       fi
-    fi
 
 done
 
@@ -257,7 +253,8 @@ for istep in $(seq 1 $Nmonth); do
             inputf="$DATAOUT/$var/$exp.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
             inputa="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
             output="$DATAOUT/$var/corr/$exp.corr.$icdate.${CASE_NUM}yr.nmem$NENS.leadmon${istep}.nc"
-	    cdo -timcor $inputa $inputf $output
+
+	    cdo -O -timcor $inputa $inputf $output
    fi
 
 done
@@ -267,16 +264,18 @@ done
 # ----------------------------------------------------------
 
 for range in 2-4 5-7 8-10 11-12; do
-    compute_seasonal_mean "$DATAOUT/$var/$exp" "$icdate" "$CASE_NUM" "$var" "$range" "$NENS"
+    compute_seasonal_mean "$DATAOUT/$var/$exp" "$icdate" "${CASE_NUM}" "$var" "$range" "$NENS"
+    compute_seasonal_mean "$DATAOUT/$var/$exp" "${icdate}.climate" "${CASE_NUM}" "$var" "$range" "$NENS"
 
     if [[ "$VARANA" != "none" && $iexp -eq 1 ]]; then
-        compute_seasonal_mean "$DATAOUT/$var/ANA" "$icdate" "$CASE_NUM" "$var" "$range" "$NENS"
+        compute_seasonal_mean "$DATAOUT/$var/ANA" "$icdate" "${CASE_NUM}" "$var" "$range" "$NENS"
+        compute_seasonal_mean "$DATAOUT/$var/ANA" "${icdate}.climate" "${CASE_NUM}" "$var" "$range" "$NENS"
     fi
     if [[ "$VARANA" != "none" && "$DO_CORR" == "YES" ]]; then
             inputf="$DATAOUT/$var/$exp.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${range}.nc"
             inputa="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${range}.nc"
             output="$DATAOUT/$var/corr/$exp.corr.$icdate.${CASE_NUM}yr.nmem$NENS.leadmon${range}.nc"
-	    cdo -L -timcor $inputa $inputf $output
+	    cdo -O -L -timcor $inputa $inputf $output
     fi
 done
 
