@@ -252,9 +252,10 @@ for istep in $(seq 1 $Nmonth); do
             mkdir -p $DATAOUT/$var/corr
             inputf="$DATAOUT/$var/$exp.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
             inputa="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${istep}.nc"
-            output="$DATAOUT/$var/corr/$exp.corr.$icdate.${CASE_NUM}yr.nmem$NENS.leadmon${istep}.nc"
+            output="$exp.corr.$icdate.${CASE_NUM}yr.nmem$NENS.leadmon${istep}.nc"
 
 	    cdo -O -timcor $inputa $inputf $output
+            cdo -settunits,days $output $DATAOUT/$var/corr/$output
    fi
 
 done
@@ -274,8 +275,10 @@ for range in 2-4 5-7 8-10 11-12; do
     if [[ "$VARANA" != "none" && "$DO_CORR" == "YES" ]]; then
             inputf="$DATAOUT/$var/$exp.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${range}.nc"
             inputa="$DATAOUT/$var/ANA.$icdate.${CASE_NUM}yr.$var.nmem$NENS.leadmon${range}.nc"
-            output="$DATAOUT/$var/corr/$exp.corr.$icdate.${CASE_NUM}yr.nmem$NENS.leadmon${range}.nc"
+            output="$exp.corr.$icdate.${CASE_NUM}yr.nmem$NENS.leadmon${range}.nc"
 	    cdo -O -L -timcor $inputa $inputf $output
+            cdo -settunits,days $output $DATAOUT/$var/corr/$output
+
     fi
 done
 

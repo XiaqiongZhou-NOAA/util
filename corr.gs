@@ -1,11 +1,18 @@
-EXPLIST="cfs C192mx025_sfs_reforecast_May01"
 EXPNAMELIST="CFS SFSbeta1.0"
-VARLIST="SST T2M"
-icdate=0501
+VARLIST="SST T2M APCP"
+VARNAMELIST="SST T2M apcp"
+EXPLIST="cfs C192mx025_sfs_reforecast_March01"
+EXPLIST="cfs C192mx025_sfs_reforecast_Apr01"
+EXPLIST="cfs C192mx025_sfs_reforecast_May01"
+EXPLIST="cfs C192mx025_sfs_reforecast_Nov01"
+EXPNAMELIST="CFS SFSbeta1.0"
+VARLIST="T2M APCP SST"
+VARNAMELIST="T2M apcp sst"
+icdate=1101
 leadmonlist="1 2 3 4 5 6 7 8 9 2-4 5-7"
 leadmonnamelist="0 1 2 3 4 5 6 7 8  1-3 4-6"
-NENS=7
-iyear=30
+NENS=10
+iyear=34
 lats=-90
 late=90
 lons=0
@@ -41,7 +48,7 @@ ivar=1
 
 while(1)
 VAR=subwrd(VARLIST,ivar)
-VARLIST="SST T2M APCP"
+VARNAME=subwrd(VARNAMELIST,ivar)
 if (VAR = "")
     break
 endif
@@ -56,15 +63,15 @@ t=1
       exp.iexp=subwrd(EXPLIST,iexp)
       expname.iexp=subwrd(EXPNAMELIST,iexp)
       exp=subwrd(EXPLIST,iexp)
-      'sdfopen  /scratch4/NCEPDEV/ensemble/Xiaqiong.Zhou/util/sfs_diag/data/'VAR'/corr/'exp.iexp'.corr.'icdate'.'iyear'yr.nmem'NENS'.leadmon'leadmon'.nc'
+      'sdfopen  /scratch4/NCEPDEV/ensemble/Xiaqiong.Zhou/util/sfs_diag/data1/'VAR'/corr/'exp.iexp'.corr.'icdate'.'iyear'yr.nmem'NENS'.leadmon'leadmon'.nc'
       'set lat 'lats' 'late
       'set lon 'lons' 'lone
       'q file'
      'q time'
       say result
       ctime=subwrd(result,3)
-      mm=substr(ctime,9,3)
-      'define fcst'iexp'='VAR
+      mm=substr(ctime,6,3)
+      'define fcst'iexp'='VARNAME
          './grads-scripts/subplot.gs 'nplots'  'iexp
          './grads-scripts/color.gs -kind white->skyblue->steelblue->springgreen->yellow->orange->red->darkred->darkbrown 0.1 0.9 0.1'
 
@@ -88,8 +95,11 @@ t=1
           say result
           ress=subwrd(result,4)
           na=substr(ress,1,5)
-           
-          'draw title 'expname.iexp' 'VAR' corr 'mm' lmon='leadmonname'\ GB='gb' TR='tr' NA='na
+          if(t>9) 
+            'draw title 'expname.iexp' 'VAR' corr 'mm'- lmon='leadmonname'\ GB='gb' TR='tr' NA='na
+          else
+           'draw title 'expname.iexp' 'VAR' corr 'mm'  lmon='leadmonname'\ GB='gb' TR='tr' NA='na
+          endif
          './grads-scripts/cbarm.gs 1 0 1'
 
         'q w2xy 'lon1' 'lat1
@@ -99,7 +109,7 @@ t=1
        'q w2xy 'lon2' 'lat2
        x2 = subwrd(result,3)
           y2 = subwrd(result,6)
-
+       'set line 5 5 6'
        'draw rec 'x1' 'y1' 'x2' 'y2
       iexp=iexp+1
       'close 1'
