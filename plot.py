@@ -98,7 +98,12 @@ for CDATE in CDATELIST:
         else:
             anafile = f"{ANADATADIR}/{config.ERAFILENAME}"
 
-        for t_idx in range(Nmonth - 1, -1, -1):
+        # Initialize shared colorbar limits outside the leadmonth loop
+        shared_mean_levels = None
+        shared_diff_levels = None
+
+        # Reversed loop: starts from t_idx=0 (which evaluates to max leadmonth, e.g., 11)
+        for t_idx in range(Nmonth):
             leadmonth = Nmonth - t_idx - 1
             
             try:
@@ -149,7 +154,7 @@ for CDATE in CDATELIST:
                     
                     ds_ana = ds_ana.sel(lat=slice(lats, late), lon=slice(lons, lone))
                     
-                    # Direct extraction, math applied in config removed
+                    # Direct extraction
                     ana_da_raw = extract_var(ds_ana, VARANA_FULL).sel(time=time_str).squeeze()
                     ana_da = ana_da_raw 
                 except (FileNotFoundError, KeyError) as e:
@@ -158,7 +163,7 @@ for CDATE in CDATELIST:
             n_exps = len(fcst_data)
             
             # ==================================================================
-            # PRE-CALCULATE BIASES/DIFFS & ESTABLISH SHARED COLORBAR LIMITS
+            # PRE-CALCULATE BIASES/DIFFS
             # ==================================================================
             mean_arrays = []
             diff_arrays = []
@@ -183,20 +188,26 @@ for CDATE in CDATELIST:
                     item['diff_da'] = diff_da
                     diff_arrays.append(diff_da.values)
             
-            mean_levels = None
-            if mean_arrays:
-                vmin_mean = np.nanmin([np.nanmin(arr) for arr in mean_arrays])
-                vmax_mean = np.nanmax([np.nanmax(arr) for arr in mean_arrays])
-                mean_levels = MaxNLocator(nbins=20, integer=True).tick_values(vmin_mean, vmax_mean)
+            # ==================================================================
+            # ESTABLISH SHARED COLORBAR LIMITS ONLY ON THE FIRST PASS
+            # ==================================================================
+            if shared_mean_levels is None:
+                if mean_arrays:
+                    vmin_mean = np.nanmin([np.nanmin(arr) for arr in mean_arrays])
+                    vmax_mean = np.nanmax([np.nanmax(arr) for arr in mean_arrays])
+                    shared_mean_levels = MaxNLocator(nbins=20, integer=True).tick_values(vmin_mean, vmax_mean)
 
-            diff_levels = None
-            if diff_arrays:
-                if VAR.lower() == 'sst' or VARANA_TYPE == "OISST":
-                    # Force SST bias to strictly plot from -4 to 4
-                    diff_levels = np.linspace(-4, 4, 17)
-                else:
-                    vmax_diff = np.nanmax([np.nanmax(np.abs(arr)) for arr in diff_arrays])
-                    diff_levels = MaxNLocator(nbins=20, integer=True, symmetric=True).tick_values(-vmax_diff*0.5, vmax_diff*0.5)
+            if shared_diff_levels is None:
+                if diff_arrays:
+                    if VAR.lower() == 'sst' or VARANA_TYPE == "OISST":
+                        shared_diff_levels = np.linspace(-4, 4, 17)
+                    else:
+                        vmax_diff = int(np.ceil(np.nanmax([np.nanmax(np.abs(arr)) * 0.3 for arr in diff_arrays])))
+                        shared_diff_levels = MaxNLocator(nbins=20, integer=False, symmetric=True).tick_values(-vmax_diff, vmax_diff)
+
+            # Map the finalized levels to the plotting loop variables
+            mean_levels = shared_mean_levels
+            diff_levels = shared_diff_levels
 
             # --- Setup Figure Layout ---
             total_plots = 0
@@ -228,6 +239,8 @@ for CDATE in CDATELIST:
                     im = ax.contourf(da.lon, da.lat, da, levels=mean_levels, cmap='turbo', 
                                      extend='both', transform=ccrs.PlateCarree())
                     ax.coastlines()
+                    # Replaced axhline with plot
+                    ax.plot([0, 360], [0, 0], color='black', linestyle=':', linewidth=1.2, transform=ccrs.PlateCarree())
                     ax.set_title(f"{item['exp']} {VAR} | mean={mean_val:.2f}\nNENS={NENS}")
                     fig.colorbar(im, ax=ax, orientation='horizontal', pad=0.05)
                     plot_idx += 1
@@ -240,6 +253,8 @@ for CDATE in CDATELIST:
                     im = ax.contourf(ana_da.lon, ana_da.lat, ana_da, levels=mean_levels, cmap='turbo', 
                                      extend='both', transform=ccrs.PlateCarree())
                     ax.coastlines()
+                    # Replaced axhline with plot
+                    ax.plot([0, 360], [0, 0], color='black', linestyle=':', linewidth=1.2, transform=ccrs.PlateCarree())
                     ax.set_title(f"{VARANA_TYPE} {VARANA_FULL} | mean={mean_val:.2f}")
                     fig.colorbar(im, ax=ax, orientation='horizontal', pad=0.05)
                     plot_idx += 1
@@ -252,6 +267,8 @@ for CDATE in CDATELIST:
                     im = ax.contourf(bias_da.lon, bias_da.lat, bias_da, levels=diff_levels, cmap='PuOr_r', 
                                      extend='both', transform=ccrs.PlateCarree())
                     ax.coastlines()
+                    # Replaced axhline with plot
+                    ax.plot([0, 360], [0, 0], color='black', linestyle=':', linewidth=1.2, transform=ccrs.PlateCarree())
                     ax.set_title(f"{item['exp']} {VAR} Bias vs {VARANA_TYPE}\nmean={mean_bias:.2f}")
                     fig.colorbar(im, ax=ax, orientation='horizontal', pad=0.05)
                     plot_idx += 1
@@ -266,6 +283,8 @@ for CDATE in CDATELIST:
                     im = ax.contourf(diff_da.lon, diff_da.lat, diff_da, levels=diff_levels, cmap='PuOr_r', 
                                      extend='both', transform=ccrs.PlateCarree())
                     ax.coastlines()
+                    # Replaced axhline with plot
+                    ax.plot([0, 360], [0, 0], color='black', linestyle=':', linewidth=1.2, transform=ccrs.PlateCarree())
                     ax.set_title(f"{item['exp']} - {fcst_data[0]['exp']} {VAR} Diff\nmean={mean_diff:.2f}")
                     fig.colorbar(im, ax=ax, orientation='horizontal', pad=0.05)
                     plot_idx += 1
