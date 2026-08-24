@@ -192,18 +192,25 @@ for CDATE in CDATELIST:
             # ESTABLISH SHARED COLORBAR LIMITS ONLY ON THE FIRST PASS
             # ==================================================================
             if shared_mean_levels is None:
-                if mean_arrays:
+                if VAR.upper() == 'APCP':
+                    shared_mean_levels = np.linspace(0, 36, 19)
+                elif VAR.upper() == 'T2M':
+                    shared_mean_levels = np.linspace(220, 310, 19)
+                elif VAR.upper() == 'SST' or VARANA_TYPE == "OISST":
+                    shared_mean_levels = np.linspace(0, 30, 16)
+                elif mean_arrays:
                     vmin_mean = np.nanmin([np.nanmin(arr) for arr in mean_arrays])
                     vmax_mean = np.nanmax([np.nanmax(arr) for arr in mean_arrays])
                     shared_mean_levels = MaxNLocator(nbins=20, integer=True).tick_values(vmin_mean, vmax_mean)
 
             if shared_diff_levels is None:
-                if diff_arrays:
-                    if VAR.lower() == 'sst' or VARANA_TYPE == "OISST":
-                        shared_diff_levels = np.linspace(-4, 4, 17)
-                    else:
-                        vmax_diff = int(np.ceil(np.nanmax([np.nanmax(np.abs(arr)) * 0.3 for arr in diff_arrays])))
-                        shared_diff_levels = MaxNLocator(nbins=20, integer=False, symmetric=True).tick_values(-vmax_diff, vmax_diff)
+                if VAR.upper() in ['APCP', 'T2M']:
+                    shared_diff_levels = np.linspace(-8, 8, 17)
+                elif VAR.upper() == 'SST' or VARANA_TYPE == "OISST":
+                    shared_diff_levels = np.linspace(-4, 4, 17)
+                elif diff_arrays:
+                    vmax_diff = int(np.ceil(np.nanmax([np.nanmax(np.abs(arr)) * 0.3 for arr in diff_arrays])))
+                    shared_diff_levels = MaxNLocator(nbins=20, integer=False, symmetric=True).tick_values(-vmax_diff, vmax_diff)
 
             # Map the finalized levels to the plotting loop variables
             mean_levels = shared_mean_levels
